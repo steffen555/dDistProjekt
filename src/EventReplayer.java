@@ -12,10 +12,10 @@ import java.awt.EventQueue;
  */
 public class EventReplayer implements Runnable {
 	
-    private DocumentEventCapturer dec;
+    private DocumentEventCapturerImpl dec;
     private JTextArea area;
 	
-    public EventReplayer(DocumentEventCapturer dec, JTextArea area) {
+    public EventReplayer(DocumentEventCapturerImpl dec, JTextArea area) {
 	this.dec = dec;
 	this.area = area;
     }

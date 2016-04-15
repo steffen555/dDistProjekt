@@ -4,8 +4,6 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.text.*;
-import javax.swing.event.*;
-import java.util.concurrent.*;
 
 public class DistributedTextEditor extends JFrame {
 
@@ -23,7 +21,7 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private DocumentEventCapturer dec = new DocumentEventCapturer();
+    private DocumentEventCapturerImpl dec = new DocumentEventCapturerImpl();
     
     public DistributedTextEditor() {
     	area1.setFont(new Font("Monospaced",Font.PLAIN,12));
