@@ -34,7 +34,7 @@ public class EventReplayer implements Runnable {
 				    area.insert(tie.getText(), tie.getOffset());				
 				} catch (Exception e) {
 				    System.err.println(e);
-				    /* We catch all axceptions, as an uncaught exception would make the 
+				    /* We catch all exceptions, as an uncaught exception would make the
 				     * EDT unwind, which is now healthy.
 				     */
 				}

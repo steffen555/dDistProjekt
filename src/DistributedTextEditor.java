@@ -23,7 +23,7 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private DocumentEventCapturer dec = new DocumentEventCapturer();
+    private DocumentEventCapturer dec = new DocumentEventCapturer(new LocalEventHistory());
     
     public DistributedTextEditor() {
     	area1.setFont(new Font("Monospaced",Font.PLAIN,12));
