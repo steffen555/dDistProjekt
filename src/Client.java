@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -20,6 +19,11 @@ public class Client {
      * connect to each others servers.
      */
     protected int portNumber = 40499;
+    private Socket socket;
+
+    public Client(Socket socket) {
+        this.socket = socket;
+    }
 
     /**
      * Will print out the IP address of the local host on which this client runs.
@@ -40,46 +44,24 @@ public class Client {
      * Connects to the server on IP address serverName and port number portNumber.
      */
     protected Socket connectToServer(String serverName) {
-        Socket res = null;
         try {
-            res = new Socket(serverName, portNumber);
+            socket = new Socket(serverName, portNumber);
         } catch (IOException e) {
             // We return null on IOExceptions
         }
-        return res;
+        return socket;
     }
 
     public void run(String serverName) {
-        System.out.println("Hello world!");
-        System.out.println("Type CTRL-D to shut down the client.");
-
         printLocalHostAddress();
 
-        Socket socket = connectToServer(serverName);
+        System.out.println("Connecting to server on " + serverName);
+        socket = connectToServer(serverName);
+        if (socket != null)
+            System.out.println("Connected to server");
+        else
+            System.err.println("Connection failed");
 
-        if (socket != null) {
-            System.out.println("Connected to " + socket);
-            try {
-                // For reading from standard input
-                BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-                // For sending text to the server
-                PrintWriter toServer = new PrintWriter(socket.getOutputStream(), true);
-                String s;
-                // Read from standard input and send to server
-                // Ctrl-D terminates the connection
-                System.out.print("Type something for the server and then RETURN> ");
-                while ((s = stdin.readLine()) != null && !toServer.checkError()) {
-                    toServer.println(s);
-                    receiveResponse(socket);
-                    System.out.print("Type something for the server and then RETURN> ");
-                }
-                socket.close();
-            } catch (IOException e) {
-                // We ignore IOExceptions
-            }
-        }
-
-        System.out.println("Goodbuy world!");
     }
 
     public static void receiveResponse(Socket socket) {
@@ -96,11 +78,6 @@ public class Client {
             // We report but otherwise ignore IOExceptions
             System.err.println(e);
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Client client = new Client();
-        client.run(args[0]);
     }
 
 }
