@@ -1,4 +1,6 @@
 
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -24,6 +26,7 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
     private DocumentEventCapturer dec = new DocumentEventCapturer(new LocalEventHistory());
+	private Server server = new Server();
     
     public DistributedTextEditor() {
     	area1.setFont(new Font("Monospaced",Font.PLAIN,12));
@@ -99,7 +102,6 @@ public class DistributedTextEditor extends JFrame {
 	    public void actionPerformed(ActionEvent e) {
 	    	saveOld();
 	    	area1.setText("");
-			Server server = new Server();
             server.run();
 			String title = server.printLocalHostAddress();
 	    	setTitle("I'm listening on " + title);
@@ -123,7 +125,9 @@ public class DistributedTextEditor extends JFrame {
     Action Disconnect = new AbstractAction("Disconnect") {
 	    public void actionPerformed(ActionEvent e) {	
 	    	setTitle("Disconnected");
-	    	// TODO
+	    	server.deregisterOnPort();
+            System.out.println("Godt");
+            // TODO
 	    }
 	};
 

@@ -87,10 +87,6 @@ public class Server {
                 break;
             }
         }*/
-
-        deregisterOnPort();
-
-        System.out.println("Goodbuy world!");
     }
 
 }
