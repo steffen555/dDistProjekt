@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Server {
+public class Server extends Thread{
 
     protected int portNumber = 40501;
     protected ServerSocket serverSocket;

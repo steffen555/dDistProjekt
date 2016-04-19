@@ -109,7 +109,7 @@ public class DistributedTextEditor extends JFrame {
             area1.setText("");
             String title = server.printLocalHostAddress();
             setTitle("I'm listening on " + title);
-            server.run();
+            server.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
