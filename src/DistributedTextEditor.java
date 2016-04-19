@@ -12,11 +12,12 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class DistributedTextEditor extends JFrame {
+	private int port = 40501;
 
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
     private JTextField ipaddress = new JTextField("IP address here");
-    private JTextField portNumber = new JTextField("40501");
+    private JTextField portNumber = new JTextField(port);
 
     private EventReplayer er;
     private Thread ert;
@@ -30,8 +31,8 @@ public class DistributedTextEditor extends JFrame {
     private Socket socket;
     private IEventHistory history = new WebEventHistory(socket);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
-    private Client client = new Client(socket);
-    private Server server = new Server(socket);
+    private Client client = new Client(socket, port);
+    private Server server = new Server(socket, port);
 
     public DistributedTextEditor() {
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));

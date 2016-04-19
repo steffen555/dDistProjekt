@@ -6,12 +6,13 @@ import java.net.UnknownHostException;
 
 public class Server extends Thread{
 
-    protected int portNumber = 40501;
+    protected int portNumber;
     protected ServerSocket serverSocket;
     private Socket socket;
 
-    public Server(Socket socket) {
+    public Server(Socket socket, int port) {
         this.socket = socket;
+        this.portNumber = port;
     }
 
     protected String printServerAddress() {

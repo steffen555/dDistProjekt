@@ -14,11 +14,12 @@ public class Client {
      * use the port number 40103. This will avoid the unfortunate situation that you
      * connect to each others servers.
      */
-    protected int portNumber = 40501;
+    protected int portNumber;
     private Socket socket;
 
-    public Client(Socket socket) {
+    public Client(Socket socket, int port) {
         this.socket = socket;
+        this.portNumber = port;
     }
 
     public void run(String serverName) {
