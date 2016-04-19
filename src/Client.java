@@ -44,12 +44,13 @@ public class Client {
      * Connects to the server on IP address serverName and port number portNumber.
      */
     protected Socket connectToServer(String serverName) {
+        Socket res = null;
         try {
-            socket = new Socket(serverName, portNumber);
+            res = new Socket(serverName, portNumber);
         } catch (IOException e) {
             // We return null on IOExceptions
         }
-        return socket;
+        return res;
     }
 
     public void run(String serverName) {
