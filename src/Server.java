@@ -14,7 +14,7 @@ public class Server extends Thread{
         this.socket = socket;
     }
 
-    protected String printLocalHostAddress() {
+    protected String printServerAddress() {
         try {
             InetAddress localhost = InetAddress.getLocalHost();
             String localhostAddress = localhost.getHostAddress();
@@ -24,18 +24,7 @@ public class Server extends Thread{
             System.err.println(e);
             System.exit(-1);
         }
-        return "No connection";
-    }
-
-    protected void registerOnPort() {
-        try {
-            serverSocket = new ServerSocket(portNumber);
-        } catch (IOException e) {
-            serverSocket = null;
-            System.err.println("Cannot open server socket on port number" + portNumber);
-            System.err.println(e);
-            System.exit(-1);
-        }
+        return "Something went wrong.";
     }
 
     public void deregisterOnPort() {
@@ -49,22 +38,21 @@ public class Server extends Thread{
         }
     }
 
-    protected void waitForConnectionFromClient() {
-        try {
-            socket = serverSocket.accept();
-        } catch (IOException e) {
-            // We return null on IOExceptions
-        }
-    }
-
     public void run() {
-        printLocalHostAddress();
-        registerOnPort();
-        System.out.println("Waiting for client");
-        while (socket == null) {
-            waitForConnectionFromClient();
+        try {
+            serverSocket = new ServerSocket(portNumber);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println("Connected to client");
+        System.out.println("Waiting for client");
+        while (true) {
+            try {
+                socket = serverSocket.accept();
+                System.out.println("Connected to client");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
