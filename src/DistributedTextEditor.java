@@ -4,6 +4,8 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.text.*;
+import javax.swing.event.*;
+import java.util.concurrent.*;
 
 public class DistributedTextEditor extends JFrame {
 
@@ -21,7 +23,7 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private DocumentEventCapturerImpl dec = new DocumentEventCapturerImpl();
+    private DocumentEventCapturer dec = new DocumentEventCapturer(new LocalEventHistory());
     
     public DistributedTextEditor() {
     	area1.setFont(new Font("Monospaced",Font.PLAIN,12));
@@ -97,8 +99,10 @@ public class DistributedTextEditor extends JFrame {
 	    public void actionPerformed(ActionEvent e) {
 	    	saveOld();
 	    	area1.setText("");
-		// TODO: Become a server listening for connections on some port.
-	    	setTitle("I'm listening on xxx.xxx.xxx:zzzz");
+			Server server = new Server();
+            server.run();
+			String title = server.printLocalHostAddress();
+	    	setTitle("I'm listening on " + title);
 	    	changed = false;
 	    	Save.setEnabled(false);
 	    	SaveAs.setEnabled(false);
