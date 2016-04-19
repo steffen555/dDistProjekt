@@ -99,8 +99,10 @@ public class DistributedTextEditor extends JFrame {
 	    public void actionPerformed(ActionEvent e) {
 	    	saveOld();
 	    	area1.setText("");
-		// TODO: Become a server listening for connections on some port.
-	    	setTitle("I'm listening on xxx.xxx.xxx:zzzz");
+			Server server = new Server();
+            server.run();
+			String title = server.printLocalHostAddress();
+	    	setTitle("I'm listening on " + title);
 	    	changed = false;
 	    	Save.setEnabled(false);
 	    	SaveAs.setEnabled(false);
