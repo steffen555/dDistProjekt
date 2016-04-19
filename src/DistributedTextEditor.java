@@ -17,7 +17,7 @@ public class DistributedTextEditor extends JFrame {
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
     private JTextField ipaddress = new JTextField("IP address here");
-    private JTextField portNumber = new JTextField(port);
+    private JTextField portNumber = new JTextField(Integer.toString(port));
 
     private EventReplayer er;
     private Thread ert;
@@ -87,9 +87,9 @@ public class DistributedTextEditor extends JFrame {
         area1.addKeyListener(k1);
         setTitle("Disconnected");
         setVisible(true);
-        area1.insert("Example of how to capture stuff from the event queue and replay it in another buffer.\n" +
+/*        area1.insert("Example of how to capture stuff from the event queue and replay it in another buffer.\n" +
                 "Try to type and delete stuff in the top area.\n" +
-                "Then figure out how it works.\n", 0);
+                "Then figure out how it works.\n", 0);*/
 
         er = new EventReplayer(dec, area2);
         ert = new Thread(er);

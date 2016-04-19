@@ -1,8 +1,5 @@
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * Created by Alexandra on 16/04/16.
- */
 public class LocalEventHistory implements IEventHistory {
 
     protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
