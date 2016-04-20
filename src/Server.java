@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Server extends Thread{
+public class Server {
 
     protected int portNumber;
     protected ServerSocket serverSocket;
@@ -39,7 +39,7 @@ public class Server extends Thread{
         }
     }
 
-    public void run() {
+    public Socket run() {
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
@@ -50,6 +50,7 @@ public class Server extends Thread{
             try {
                 socket = serverSocket.accept();
                 System.out.println("Connected to client");
+                return socket;
             } catch (IOException e) {
                 e.printStackTrace();
             }

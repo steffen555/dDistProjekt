@@ -28,7 +28,7 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private Socket socket;
+    private static Socket socket;
     private WebEventHistory history = new WebEventHistory(socket);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
     private Client client = new Client(socket, port);
@@ -110,7 +110,7 @@ public class DistributedTextEditor extends JFrame {
             area1.setText("");
             String title = server.printServerAddress();
             setTitle("I'm listening on " + title);
-            server.start();
+            socket = server.run();
             history.start();
             changed = false;
             Save.setEnabled(false);
@@ -124,7 +124,7 @@ public class DistributedTextEditor extends JFrame {
             area1.setText("");
             setTitle("Connecting to " + ipaddress.getText() + ":" + portNumber.getText() + "...");
             client.setServerName(ipaddress.getText());
-            client.start();
+            socket = client.run();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
