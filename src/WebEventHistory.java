@@ -34,18 +34,19 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     public void run() {
         while (true) {
-            try {
-                if (input == null) {
-                    input = new ObjectInputStream(socket.getInputStream());
+            if (socket != null) {
+                try {
+                    if (input == null) {
+                        input = new ObjectInputStream(socket.getInputStream());
+                    }
+                    MyTextEvent inputEvent = (MyTextEvent) input.readObject();
+                    eventHistory.add(inputEvent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-                MyTextEvent inputEvent = (MyTextEvent) input.readObject();
-                eventHistory.add(inputEvent);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
-
         }
     }
 }

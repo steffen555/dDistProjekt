@@ -6,7 +6,7 @@ import java.net.Socket;
  * send the text to the server.
  */
 
-public class Client {
+public class Client extends Thread{
 
     /*
      * Your group should use port number 40HGG, where H is your "hold nummer (1,2 or 3)
@@ -16,13 +16,18 @@ public class Client {
      */
     protected int portNumber;
     private Socket socket;
+    private String serverName;
 
     public Client(Socket socket, int port) {
         this.socket = socket;
         this.portNumber = port;
     }
 
-    public void run(String serverName) {
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    public void run() {
         System.out.println("Connecting to server on " + serverName);
         try {
             socket = new Socket(serverName, portNumber);
