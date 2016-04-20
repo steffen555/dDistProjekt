@@ -23,8 +23,10 @@ public class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public void add(MyTextEvent textEvent) {
         try {
-            output = new ObjectOutputStream(socket.getOutputStream());
-            output.close();
+            if (output == null) {
+                output = new ObjectOutputStream(socket.getOutputStream());
+            }
+            output.writeObject(textEvent);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,10 +35,11 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void run() {
         while (true) {
             try {
-                input = new ObjectInputStream(socket.getInputStream());
+                if (input == null) {
+                    input = new ObjectInputStream(socket.getInputStream());
+                }
                 MyTextEvent inputEvent = (MyTextEvent) input.readObject();
                 eventHistory.add(inputEvent);
-                input.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {

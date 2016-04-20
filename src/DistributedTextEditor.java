@@ -111,6 +111,7 @@ public class DistributedTextEditor extends JFrame {
             String title = server.printServerAddress();
             setTitle("I'm listening on " + title);
             server.start();
+            //history.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
