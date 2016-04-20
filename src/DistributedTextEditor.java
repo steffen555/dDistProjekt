@@ -122,6 +122,7 @@ public class DistributedTextEditor extends JFrame {
             area1.setText("");
             setTitle("Connecting to " + ipaddress.getText() + ":" + portNumber.getText() + "...");
             history.startClient(ipaddress.getText());
+            history.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
