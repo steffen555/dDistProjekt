@@ -29,7 +29,7 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
     private Socket socket;
-    private IEventHistory history = new WebEventHistory(socket);
+    private WebEventHistory history = new WebEventHistory(socket);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
     private Client client = new Client(socket, port);
     private Server server = new Server(socket, port);
@@ -111,7 +111,7 @@ public class DistributedTextEditor extends JFrame {
             String title = server.printServerAddress();
             setTitle("I'm listening on " + title);
             server.start();
-            //history.start();
+            history.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
