@@ -29,10 +29,8 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
     private static Socket socket;
-    private WebEventHistory history = new WebEventHistory(socket);
+    private WebEventHistory history = new WebEventHistory(socket, port);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
-    private Client client = new Client(socket, port);
-    private Server server = new Server(socket, port);
 
     public DistributedTextEditor() {
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -108,9 +106,9 @@ public class DistributedTextEditor extends JFrame {
         public void actionPerformed(ActionEvent e) {
             saveOld();
             area1.setText("");
-            String title = server.printServerAddress();
+            String title = history.printServerAddress();
             setTitle("I'm listening on " + title);
-            socket = server.run();
+            history.startServer();
             history.start();
             changed = false;
             Save.setEnabled(false);
@@ -123,8 +121,7 @@ public class DistributedTextEditor extends JFrame {
             saveOld();
             area1.setText("");
             setTitle("Connecting to " + ipaddress.getText() + ":" + portNumber.getText() + "...");
-            client.setServerName(ipaddress.getText());
-            socket = client.run();
+            history.startClient(ipaddress.getText());
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
@@ -134,7 +131,7 @@ public class DistributedTextEditor extends JFrame {
     Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
             setTitle("Disconnected");
-            server.deregisterOnPort();
+            history.deregisterOnPort();
             System.out.println("Godt");
             // TODO
         }

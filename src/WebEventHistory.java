@@ -10,9 +10,13 @@ public class WebEventHistory extends Thread implements IEventHistory {
     private Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
+    private Client client;
+    private Server server;
 
-    public WebEventHistory(Socket socket) {
+    public WebEventHistory(Socket socket, int port) {
         this.socket = socket;
+        this.client = new Client(socket, port);
+        this.server = new Server(socket, port);
     }
 
     @Override
@@ -30,6 +34,23 @@ public class WebEventHistory extends Thread implements IEventHistory {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startServer() {
+        socket = server.run();
+    }
+
+    public void startClient(String servername) {
+        client.setServerName(servername);
+        socket = client.run();
+    }
+
+    public String printServerAddress() {
+        return server.printServerAddress();
+    }
+
+    public void deregisterOnPort() {
+        server.deregisterOnPort();
     }
 
     public void run() {
