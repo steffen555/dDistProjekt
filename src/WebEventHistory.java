@@ -12,11 +12,13 @@ public class WebEventHistory extends Thread implements IEventHistory {
     private ObjectInputStream input;
     private Client client;
     private Server server;
+    private DistributedTextEditor dte;
 
-    public WebEventHistory(Socket socket, int port) {
+    public WebEventHistory(Socket socket, int port, DistributedTextEditor distributedTextEditor) {
         this.socket = socket;
         this.client = new Client(socket, port);
         this.server = new Server(socket, port);
+        dte = distributedTextEditor;
     }
 
     @Override
@@ -63,7 +65,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
                     MyTextEvent inputEvent = (MyTextEvent) input.readObject();
                     eventHistory.add(inputEvent);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    dte.Disconnect.actionPerformed(null);
+                    return;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }

@@ -29,7 +29,7 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
     private static Socket socket;
-    private WebEventHistory history = new WebEventHistory(socket, port);
+    private WebEventHistory history = new WebEventHistory(socket, port, this);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
 
     public DistributedTextEditor() {
