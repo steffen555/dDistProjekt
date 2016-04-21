@@ -80,7 +80,7 @@ public class EventReplayer implements Runnable {
                 try {
                     Clip clip = AudioSystem.getClip();
                     AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-                            Main.class.getResourceAsStream("" + url));
+                            DistributedTextEditor.class.getResourceAsStream("" + url));
                     clip.open(inputStream);
                     clip.start();
                 } catch (Exception e) {
