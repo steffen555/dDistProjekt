@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Socket;
 
 public class DistributedTextEditor extends JFrame {
 	private int port = 40501;
@@ -17,7 +16,7 @@ public class DistributedTextEditor extends JFrame {
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
     private JTextField ipaddress = new JTextField("IP address here");
-    private JTextField portNumber = new JTextField(port);
+    private JTextField portNumber = new JTextField(Integer.toString(port));
 
     private EventReplayer er;
     private Thread ert;
@@ -28,11 +27,8 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private Socket socket;
-    private IEventHistory history = new WebEventHistory(socket);
+    private WebEventHistory history = new WebEventHistory(port, this);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
-    private Client client = new Client(socket, port);
-    private Server server = new Server(socket, port);
 
     public DistributedTextEditor() {
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -87,9 +83,9 @@ public class DistributedTextEditor extends JFrame {
         area1.addKeyListener(k1);
         setTitle("Disconnected");
         setVisible(true);
-        area1.insert("Example of how to capture stuff from the event queue and replay it in another buffer.\n" +
+/*        area1.insert("Example of how to capture stuff from the event queue and replay it in another buffer.\n" +
                 "Try to type and delete stuff in the top area.\n" +
-                "Then figure out how it works.\n", 0);
+                "Then figure out how it works.\n", 0);*/
 
         er = new EventReplayer(dec, area2);
         ert = new Thread(er);
@@ -108,9 +104,10 @@ public class DistributedTextEditor extends JFrame {
         public void actionPerformed(ActionEvent e) {
             saveOld();
             area1.setText("");
-            String title = server.printServerAddress();
+            String title = history.printServerAddress();
             setTitle("I'm listening on " + title);
-            server.start();
+            history.startServer();
+            history.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
@@ -119,10 +116,17 @@ public class DistributedTextEditor extends JFrame {
 
     Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
+            String ip;
+            if (ipaddress.getText().equals("IP address here")) {
+                ip = "localhost";
+            } else {
+                ip = ipaddress.getText();
+            }
             saveOld();
             area1.setText("");
-            setTitle("Connecting to " + ipaddress.getText() + ":" + portNumber.getText() + "...");
-            client.run(ipaddress.getText());
+            setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
+            history.startClient(ip);
+            history.start();
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
@@ -132,7 +136,7 @@ public class DistributedTextEditor extends JFrame {
     Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
             setTitle("Disconnected");
-            server.deregisterOnPort();
+            history.deregisterOnPort();
             System.out.println("Godt");
             // TODO
         }

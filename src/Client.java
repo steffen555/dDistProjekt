@@ -16,22 +16,30 @@ public class Client {
      */
     protected int portNumber;
     private Socket socket;
+    private String serverName;
 
     public Client(Socket socket, int port) {
         this.socket = socket;
         this.portNumber = port;
     }
 
-    public void run(String serverName) {
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    public Socket run() {
         System.out.println("Connecting to server on " + serverName);
         try {
             socket = new Socket(serverName, portNumber);
+            if (socket != null)
+                System.out.println("Connected to server");
+            else
+                System.err.println("Connection failed");
+            return socket;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (socket != null)
-            System.out.println("Connected to server");
-        else
-            System.err.println("Connection failed");
+        System.err.println("Connection failed");
+        return null;
     }
 }

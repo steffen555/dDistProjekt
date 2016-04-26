@@ -1,75 +1,75 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class WebEventHistory implements IEventHistory {
-    public WebEventHistory(Socket socket) {
+public class WebEventHistory extends Thread implements IEventHistory {
+
+    protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
+    private Socket socket;
+    private ObjectOutputStream output;
+    private ObjectInputStream input;
+    private Client client;
+    private Server server;
+    private DistributedTextEditor dte;
+
+    public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
+        this.client = new Client(socket, port);
+        this.server = new Server(socket, port);
+        dte = distributedTextEditor;
     }
 
     @Override
     public MyTextEvent take() throws InterruptedException {
-        return null;
+        return eventHistory.take();
     }
 
     @Override
     public void add(MyTextEvent textEvent) {
-
+        try {
+            if (output == null) {
+                output = new ObjectOutputStream(socket.getOutputStream());
+            }
+            output.writeObject(textEvent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-/*
-    private void foo() {
-        while (true) {
-            Socket socket = waitForConnectionFromClient();
 
+    public void startServer() {
+        socket = server.run();
+    }
+
+    public void startClient(String servername) {
+        client.setServerName(servername);
+        socket = client.run();
+    }
+
+    public String printServerAddress() {
+        return server.printServerAddress();
+    }
+
+    public void deregisterOnPort() {
+        server.deregisterOnPort();
+    }
+
+    public void run() {
+        while (true) {
             if (socket != null) {
-                System.out.println("Server from " + socket);
                 try {
-                    ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
-                    Object o;
-                    MyTextEvent mte = null;
-                    // Read and print what the client is sending
-                    while ((o = fromClient.readObject()) != null) { // Ctrl-D terminates the connection
-                        if (o.getClass() == MyTextEvent.class)
-                            mte = (MyTextEvent) o;
-                        System.out.println("From the client: " + mte.toString());
-                        history.add(mte);
+                    if (input == null) {
+                        input = new ObjectInputStream(socket.getInputStream());
                     }
-                    socket.close();
+                    MyTextEvent inputEvent = (MyTextEvent) input.readObject();
+                    eventHistory.add(inputEvent);
                 } catch (IOException e) {
-                    // We report but otherwise ignore IOExceptions
-                    System.err.println(e);
+                    dte.Disconnect.actionPerformed(null);
+                    return;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Server closed by client.");
-            } else {
-                // We rather agressively terminate the server on the first connection exception
-                break;
             }
         }
     }
-
-    private void bar() {
-
-
-        if (socket != null) {
-            System.out.println("Connected to " + socket);
-            try {
-                // For reading from standard input
-                BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-                // For sending text to the server
-                PrintWriter toServer = new PrintWriter(socket.getOutputStream(), true);
-                String s;
-                // Read from standard input and send to server
-                // Ctrl-D terminates the connection
-                System.out.print("Type something for the server and then RETURN> ");
-                while ((s = stdin.readLine()) != null && !toServer.checkError()) {
-                    toServer.println(s);
-                    receiveResponse(socket);
-                    System.out.print("Type something for the server and then RETURN> ");
-                }
-                socket.close();
-            } catch (IOException e) {
-                // We ignore IOExceptions
-            }
-        }
-    }*/
 }
