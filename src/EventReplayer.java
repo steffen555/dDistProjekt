@@ -33,6 +33,7 @@ public class EventReplayer implements Runnable {
                         public void run() {
                             try {
                                 area.insert(tie.getText(), tie.getOffset());
+                                // Sound by freesfx.co.uk
                                 playSound("typewriter_key.wav");
                             } catch (Exception e) {
                                 System.err.println(e);
@@ -48,6 +49,7 @@ public class EventReplayer implements Runnable {
                         public void run() {
                             try {
                                 area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
+                                // Sound by freesfx.co.uk
                                 playSound("typewriter_key.wav");
                             } catch (Exception e) {
                                 System.err.println(e);
