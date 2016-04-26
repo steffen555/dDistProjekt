@@ -141,6 +141,10 @@ public class DistributedTextEditor extends JFrame {
             history = new WebEventHistory(port, thisOne);
             System.out.println("Godt");
             // TODO
+            dec = new DocumentEventCapturer(history);
+            er = new EventReplayer(dec, area2);
+            ert = new Thread(er);
+            ert.start();
         }
     };
 

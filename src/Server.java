@@ -40,6 +40,7 @@ public class Server {
     }
 
     public Socket run() {
+        socket = new Socket();
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
