@@ -1,10 +1,8 @@
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
-
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 /**
  * Takes the event recorded by the DocumentEventCapturer and replays
@@ -35,8 +33,7 @@ public class EventReplayer implements Runnable {
                         public void run() {
                             try {
                                 area.insert(tie.getText(), tie.getOffset());
-                                //Sound by freesfx.co.uk
-                                playSound("typewriter_key.mp3");
+                                playSound("typewriter_key.wav");
                             } catch (Exception e) {
                                 System.err.println(e);
                     /* We catch all exceptions, as an uncaught exception would make the
@@ -51,11 +48,10 @@ public class EventReplayer implements Runnable {
                         public void run() {
                             try {
                                 area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
-                                //Sound by freesfx.co.uk
-                                playSound("typewriter_key.mp3");
+                                playSound("typewriter_key.wav");
                             } catch (Exception e) {
                                 System.err.println(e);
-				    /* We catch all axceptions, as an uncaught exception would make the 
+				    /* We catch all axceptions, as an uncaught exception would make the
 				     * EDT unwind, which is now healthy.
 				     */
                             }
@@ -82,10 +78,11 @@ public class EventReplayer implements Runnable {
             // Clip finishing; see comments.
             public void run() {
                 try {
-                    String soundFile = url;
-                    InputStream in = new FileInputStream(soundFile);
-                    AudioStream audioStream = new AudioStream(in);
-                    AudioPlayer.player.start(audioStream);
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+                            DistributedTextEditor.class.getResourceAsStream("" + url));
+                    clip.open(inputStream);
+                    clip.start();
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
