@@ -37,14 +37,6 @@ public class Server {
                 System.err.println(e);
             }
         }
-        if (socket != null) {
-            try {
-                socket.close();
-                socket = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public Socket run() {

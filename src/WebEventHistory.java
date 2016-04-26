@@ -52,6 +52,14 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     public void deregisterOnPort() {
         server.deregisterOnPort();
+        if (socket != null) {
+            try {
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void run() {

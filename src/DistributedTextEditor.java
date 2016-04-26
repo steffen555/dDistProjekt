@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DefaultEditorKit;
@@ -105,7 +104,7 @@ public class DistributedTextEditor extends JFrame {
             saveOld();
             area1.setText("");
             String title = history.printServerAddress();
-            setTitle("I'm listening on " + title);
+            setTitle("I'm listening on " + title + ":" + port);
             history.startServer();
             history.start();
             changed = false;
@@ -133,10 +132,13 @@ public class DistributedTextEditor extends JFrame {
         }
     };
 
+    private DistributedTextEditor thisOne = this;
+
     Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
             setTitle("Disconnected");
             history.deregisterOnPort();
+            history = new WebEventHistory(port, thisOne);
             System.out.println("Godt");
             // TODO
         }
