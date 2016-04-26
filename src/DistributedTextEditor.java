@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Socket;
 
 public class DistributedTextEditor extends JFrame {
 	private int port = 40501;
@@ -28,8 +27,7 @@ public class DistributedTextEditor extends JFrame {
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private static Socket socket;
-    private WebEventHistory history = new WebEventHistory(socket, port, this);
+    private WebEventHistory history = new WebEventHistory(port, this);
     private DocumentEventCapturer dec = new DocumentEventCapturer(history);
 
     public DistributedTextEditor() {
@@ -118,10 +116,16 @@ public class DistributedTextEditor extends JFrame {
 
     Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
+            String ip;
+            if (ipaddress.getText().equals("IP address here")) {
+                ip = "localhost";
+            } else {
+                ip = ipaddress.getText();
+            }
             saveOld();
             area1.setText("");
-            setTitle("Connecting to " + ipaddress.getText() + ":" + portNumber.getText() + "...");
-            history.startClient(ipaddress.getText());
+            setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
+            history.startClient(ip);
             history.start();
             changed = false;
             Save.setEnabled(false);

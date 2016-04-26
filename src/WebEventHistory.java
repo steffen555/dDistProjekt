@@ -14,8 +14,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     private Server server;
     private DistributedTextEditor dte;
 
-    public WebEventHistory(Socket socket, int port, DistributedTextEditor distributedTextEditor) {
-        this.socket = socket;
+    public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
         this.client = new Client(socket, port);
         this.server = new Server(socket, port);
         dte = distributedTextEditor;
