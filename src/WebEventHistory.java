@@ -62,6 +62,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
         }
     }
 
+    @Override
     public void run() {
         while (true) {
             if (socket != null) {

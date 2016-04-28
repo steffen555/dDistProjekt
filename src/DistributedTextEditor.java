@@ -10,7 +10,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class DistributedTextEditor extends JFrame {
-	private int port = 40501;
+
+    private int port = 40501;
 
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
@@ -20,20 +21,19 @@ public class DistributedTextEditor extends JFrame {
     private EventReplayer er;
     private Thread ert;
 
-    private JFileChooser dialog =
-            new JFileChooser(System.getProperty("user.dir"));
+    private JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
 
     private String currentFile = "Untitled";
     private boolean changed = false;
     private boolean connected = false;
-    private WebEventHistory history = new WebEventHistory(port, this);
-    private DocumentEventCapturer dec = new DocumentEventCapturer(history);
+
+    private WebEventHistory history;
+    private DocumentEventCapturer dec;
+    private DistributedTextEditor thisOne = this;
 
     public DistributedTextEditor() {
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));
-
         area2.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
         area2.setEditable(false);
 
         Container content = getContentPane();
@@ -82,13 +82,6 @@ public class DistributedTextEditor extends JFrame {
         area1.addKeyListener(k1);
         setTitle("Disconnected");
         setVisible(true);
-/*        area1.insert("Example of how to capture stuff from the event queue and replay it in another buffer.\n" +
-                "Try to type and delete stuff in the top area.\n" +
-                "Then figure out how it works.\n", 0);*/
-
-        er = new EventReplayer(dec, area2);
-        ert = new Thread(er);
-        ert.start();
     }
 
     private KeyListener k1 = new KeyAdapter() {
@@ -103,8 +96,10 @@ public class DistributedTextEditor extends JFrame {
         public void actionPerformed(ActionEvent e) {
             saveOld();
             area1.setText("");
-            String title = history.printServerAddress();
-            setTitle("I'm listening on " + title + ":" + port);
+            area2.setText("");
+            setUp();
+            String ip = history.printServerAddress();
+            setTitle("I'm listening on " + ip + ":" + port);
             history.startServer();
             history.start();
             changed = false;
@@ -123,28 +118,25 @@ public class DistributedTextEditor extends JFrame {
             }
             saveOld();
             area1.setText("");
+            area2.setText("");
             setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
+            setUp();
             history.startClient(ip);
             history.start();
+            setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
         }
     };
 
-    private DistributedTextEditor thisOne = this;
-
     Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
             setTitle("Disconnected");
             history.deregisterOnPort();
-            history = new WebEventHistory(port, thisOne);
+            history.interrupt();
+            ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
             System.out.println("Godt");
-            // TODO
-            dec = new DocumentEventCapturer(history);
-            er = new EventReplayer(dec, area2);
-            ert = new Thread(er);
-            ert.start();
         }
     };
 
@@ -171,9 +163,17 @@ public class DistributedTextEditor extends JFrame {
     };
 
     ActionMap m = area1.getActionMap();
-
     Action Copy = m.get(DefaultEditorKit.copyAction);
     Action Paste = m.get(DefaultEditorKit.pasteAction);
+
+    private void setUp() {
+        history = new WebEventHistory(port, thisOne);
+        dec = new DocumentEventCapturer(history);
+        ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
+        er = new EventReplayer(dec, area2);
+        ert = new Thread(er);
+        ert.start();
+    }
 
     private void saveFileAs() {
         if (dialog.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
