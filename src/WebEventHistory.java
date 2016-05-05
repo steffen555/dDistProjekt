@@ -22,7 +22,10 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public MyTextEvent take() throws InterruptedException {
-        return eventHistory.take();
+        MyTextEvent mte = eventHistory.take();
+        System.out.println("Received MyTextEvent with time " + mte.getTimeStamp());
+        LogicClock.setToMax(mte.getTimeStamp());
+        return mte;
     }
 
     @Override

@@ -23,12 +23,9 @@ public class DocumentEventCapturer extends DocumentFilter {
      */
     protected IEventHistory eventHistory;
     private int id;
-    private LogicClock logicClock;
 
     public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id) {
         eventHistory = eventHistoryInstance;
-        this.id = id;
-        logicClock = new LogicClock();
     }
 
     /**
@@ -46,7 +43,7 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = logicClock.getAndIncrease();
+        int timeStamp = LogicClock.getAndIncrease();
         eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
         super.insertString(fb, offset, str, a);
     }
@@ -54,7 +51,7 @@ public class DocumentEventCapturer extends DocumentFilter {
     public void remove(FilterBypass fb, int offset, int length)
             throws BadLocationException {
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = logicClock.getAndIncrease();
+        int timeStamp = LogicClock.getAndIncrease();
         eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
         super.remove(fb, offset, length);
     }
@@ -65,7 +62,7 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 	
 	/* Queue a copy of the event and then modify the text */
-        int timeStamp = logicClock.getAndIncrease();
+        int timeStamp = LogicClock.getAndIncrease();
         if (length > 0) {
             eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
         }

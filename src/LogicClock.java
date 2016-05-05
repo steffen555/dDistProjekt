@@ -1,17 +1,13 @@
 public class LogicClock {
-    private int time;
+    private static int time = 0;
 
-    public LogicClock() {
-        time = 0;
-    }
-
-    public int getAndIncrease() {
+    public static int getAndIncrease() {
         int res = time;
         time++;
         return res;
     }
 
-    public int setToMax(int i){
+    public static int setToMax(int i){
         time = Math.max(time, i) + 1;
         return time;
     }
