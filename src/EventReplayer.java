@@ -15,10 +15,14 @@ public class EventReplayer implements Runnable {
 
     private DocumentEventCapturer dec;
     private JTextArea area;
+    private DistributedTextEditor dte;
+    private int id;
 
-    public EventReplayer(DocumentEventCapturer dec, JTextArea area) {
+    public EventReplayer(DocumentEventCapturer dec, JTextArea area, DistributedTextEditor thisOne, int id) {
         this.dec = dec;
         this.area = area;
+        this.dte = thisOne;
+        this.id = id;
     }
 
     public void run() {
@@ -27,38 +31,46 @@ public class EventReplayer implements Runnable {
             //waitForOneSecond();
             try {
                 MyTextEvent mte = dec.take();
-                if (mte instanceof TextInsertEvent) {
-                    final TextInsertEvent tie = (TextInsertEvent) mte;
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            try {
-                                area.insert(tie.getText(), tie.getOffset());
-                                // Sound by freesfx.co.uk
-                                playSound("typewriter_key.wav");
-                            } catch (Exception e) {
-                                System.err.println(e);
-                    /* We catch all exceptions, as an uncaught exception would make the
-				     * EDT unwind, which is now healthy.
-				     */
+                if (mte.getID() != id) {
+                    dte.disableDEC();
+                    if (mte instanceof TextInsertEvent) {
+                        final TextInsertEvent tie = (TextInsertEvent) mte;
+                        Runnable runnable = new Thread() {
+                            public void run() {
+                                try {
+                                    area.insert(tie.getText(), tie.getOffset());
+                                    // Sound by freesfx.co.uk
+                                    playSound("typewriter_key.wav");
+                                } catch (Exception e) {
+                                    System.err.println(e);
+                        /* We catch all exceptions, as an uncaught exception would make the
+                         * EDT unwind, which is now healthy.
+                         */
+                                }
                             }
-                        }
-                    });
-                } else if (mte instanceof TextRemoveEvent) {
-                    final TextRemoveEvent tre = (TextRemoveEvent) mte;
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            try {
-                                area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
-                                // Sound by freesfx.co.uk
-                                playSound("typewriter_key.wav");
-                            } catch (Exception e) {
-                                System.err.println(e);
-				    /* We catch all axceptions, as an uncaught exception would make the
-				     * EDT unwind, which is now healthy.
-				     */
+                        };
+                        EventQueue.invokeAndWait(runnable);
+                        ((Thread) runnable).join();
+                    } else if (mte instanceof TextRemoveEvent) {
+                        final TextRemoveEvent tre = (TextRemoveEvent) mte;
+                        Runnable runnable = new Thread() {
+                            public void run() {
+                                try {
+                                    area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
+                                    // Sound by freesfx.co.uk
+                                    playSound("typewriter_key.wav");
+                                } catch (Exception e) {
+                                    System.err.println(e);
+                        /* We catch all axceptions, as an uncaught exception would make the
+                         * EDT unwind, which is now healthy.
+                         */
+                                }
                             }
-                        }
-                    });
+                        };
+                        EventQueue.invokeAndWait(runnable);
+                        ((Thread) runnable).join();
+                    }
+                    dte.enableDEC();
                 }
             } catch (Exception _) {
                 wasInterrupted = true;
