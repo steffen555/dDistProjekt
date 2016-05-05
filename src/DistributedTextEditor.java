@@ -27,7 +27,7 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
 
-    private WebEventHistory history;
+    private SyncEventHistory history;
     private DocumentEventCapturer dec;
     private DistributedTextEditor thisOne = this;
 
@@ -167,7 +167,7 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
-        history = new WebEventHistory(port, thisOne);
+        history = new SyncEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history);
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
         er = new EventReplayer(dec, area2);
