@@ -8,10 +8,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DistributedTextEditor extends JFrame {
 
     private int port = 40501;
+    private int id;
 
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
@@ -135,7 +137,8 @@ public class DistributedTextEditor extends JFrame {
             setTitle("Disconnected");
             history.deregisterOnPort();
             history.interrupt();
-            ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
+            //((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
+            disableDEC();
             System.out.println("Godt");
         }
     };
@@ -167,10 +170,11 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
+        id = ThreadLocalRandom.current().nextInt(0, 1000000000 + 1);
         history = new SyncEventHistory(port, thisOne);
-        dec = new DocumentEventCapturer(history);
-        ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
-        er = new EventReplayer(dec, area1);
+        dec = new DocumentEventCapturer(history, id);
+        enableDEC();
+        er = new EventReplayer(dec, area1, thisOne, id);
         ert = new Thread(er);
         ert.start();
     }
@@ -197,6 +201,14 @@ public class DistributedTextEditor extends JFrame {
             Save.setEnabled(false);
         } catch (IOException e) {
         }
+    }
+
+    public void enableDEC() {
+        ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
+    }
+
+    public void disableDEC() {
+        ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
     }
 
     public static void main(String[] arg) {
