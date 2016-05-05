@@ -22,9 +22,11 @@ public class DocumentEventCapturer extends DocumentFilter {
      *    we want, as we then don't need to keep asking until there are new elements.
      */
     protected IEventHistory eventHistory;
+    private int id;
 
-    public DocumentEventCapturer(IEventHistory eventHistoryInstance) {
+    public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id) {
         eventHistory = eventHistoryInstance;
+        this.id = id;
     }
 
     /**
@@ -42,14 +44,14 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 
 	/* Queue a copy of the event and then modify the textarea */
-        eventHistory.add(new TextInsertEvent(offset, str));
+        eventHistory.add(new TextInsertEvent(offset, id, str));
         super.insertString(fb, offset, str, a);
     }
 
     public void remove(FilterBypass fb, int offset, int length)
             throws BadLocationException {
 	/* Queue a copy of the event and then modify the textarea */
-        eventHistory.add(new TextRemoveEvent(offset, length));
+        eventHistory.add(new TextRemoveEvent(offset, id, length));
         super.remove(fb, offset, length);
     }
 
@@ -60,9 +62,9 @@ public class DocumentEventCapturer extends DocumentFilter {
 	
 	/* Queue a copy of the event and then modify the text */
         if (length > 0) {
-            eventHistory.add(new TextRemoveEvent(offset, length));
+            eventHistory.add(new TextRemoveEvent(offset, id, length));
         }
-        eventHistory.add(new TextInsertEvent(offset, str));
+        eventHistory.add(new TextInsertEvent(offset, id, str));
         super.replace(fb, offset, length, str, a);
     }
 }
