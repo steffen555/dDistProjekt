@@ -170,7 +170,7 @@ public class DistributedTextEditor extends JFrame {
         history = new SyncEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history);
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
-        er = new EventReplayer(dec, area2);
+        er = new EventReplayer(dec, area1);
         ert = new Thread(er);
         ert.start();
     }

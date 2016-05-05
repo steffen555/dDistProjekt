@@ -6,13 +6,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class SyncEventHistory extends Thread implements IEventHistory {
 
-    protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
+    protected LinkedBlockingQueue<IDTextEvent> eventHistory = new LinkedBlockingQueue<IDTextEvent>();
     private Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private Client client;
     private Server server;
     private DistributedTextEditor dte;
+    private int id;
 
     public SyncEventHistory(int port, DistributedTextEditor distributedTextEditor) {
         this.client = new Client(socket, port);
@@ -22,7 +23,10 @@ public class SyncEventHistory extends Thread implements IEventHistory {
 
     @Override
     public MyTextEvent take() throws InterruptedException {
-        return eventHistory.take();
+        IDTextEvent idte = eventHistory.take();
+        if (idte.getID() != id)
+            return idte.getTextEvent();
+        return null;
     }
 
     @Override
@@ -31,7 +35,8 @@ public class SyncEventHistory extends Thread implements IEventHistory {
             if (output == null) {
                 output = new ObjectOutputStream(socket.getOutputStream());
             }
-            output.writeObject(textEvent);
+            IDTextEvent idte = new IDTextEvent(textEvent, id);
+            output.writeObject(idte);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,10 +44,12 @@ public class SyncEventHistory extends Thread implements IEventHistory {
     }
 
     public void startServer() {
+        id = 42;
         socket = server.run();
     }
 
     public void startClient(String servername) {
+        id = 1337;
         client.setServerName(servername);
         socket = client.run();
     }
@@ -71,7 +78,7 @@ public class SyncEventHistory extends Thread implements IEventHistory {
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());
                     }
-                    MyTextEvent inputEvent = (MyTextEvent) input.readObject();
+                    IDTextEvent inputEvent = (IDTextEvent) input.readObject();
                     eventHistory.add(inputEvent);
                 } catch (IOException e) {
                     dte.Disconnect.actionPerformed(null);
