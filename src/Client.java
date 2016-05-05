@@ -27,6 +27,7 @@ public class Client {
         this.serverName = serverName;
     }
 
+
     public Socket run() {
         System.out.println("Connecting to server on " + serverName);
         try {
