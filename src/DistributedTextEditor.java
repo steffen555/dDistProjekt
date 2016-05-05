@@ -29,7 +29,7 @@ public class DistributedTextEditor extends JFrame {
     private boolean changed = false;
     private boolean connected = false;
 
-    private SyncEventHistory history;
+    private WebEventHistory history;
     private DocumentEventCapturer dec;
     private DistributedTextEditor thisOne = this;
 
@@ -171,7 +171,7 @@ public class DistributedTextEditor extends JFrame {
 
     private void setUp() {
         id = ThreadLocalRandom.current().nextInt(0, 1000000000 + 1);
-        history = new SyncEventHistory(port, thisOne);
+        history = new WebEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history, id);
         enableDEC();
         er = new EventReplayer(dec, area1, thisOne, id);
