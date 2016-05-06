@@ -1,6 +1,7 @@
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import java.util.HashMap;
 
 /**
  * This class captures and remembers the text events of the given document on
@@ -43,7 +44,7 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = LogicClock.getAndIncrease();
+        HashMap<Integer, Integer> timeStamp = LogicClock.getAndIncrease(id);
         eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
         super.insertString(fb, offset, str, a);
     }
@@ -51,7 +52,7 @@ public class DocumentEventCapturer extends DocumentFilter {
     public void remove(FilterBypass fb, int offset, int length)
             throws BadLocationException {
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = LogicClock.getAndIncrease();
+        HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
         eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
         super.remove(fb, offset, length);
     }
@@ -62,10 +63,11 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 	
 	/* Queue a copy of the event and then modify the text */
-        int timeStamp = LogicClock.getAndIncrease();
+        HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
         if (length > 0) {
             eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
         }
+        timeStamp = LogicClock.getAndIncrease(id);
         eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
         super.replace(fb, offset, length, str, a);
     }

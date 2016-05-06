@@ -1,11 +1,12 @@
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * @author Jesper Buus Nielsen
  */
-public class MyTextEvent implements Serializable {
+public abstract class MyTextEvent implements Serializable {
 
-    MyTextEvent(int offset, int id, int timeStamp) {
+    MyTextEvent(int offset, int id, HashMap<Integer, Integer> timeStamp) {
         this.offset = offset;
         this.id = id;
         this.timeStamp = timeStamp;
@@ -13,7 +14,7 @@ public class MyTextEvent implements Serializable {
 
     private int offset;
     private int id;
-    private int timeStamp;
+    private HashMap<Integer,Integer> timeStamp;
 
     int getOffset() {
         return offset;
@@ -23,7 +24,9 @@ public class MyTextEvent implements Serializable {
         return id;
     }
 
-    int getTimeStamp() {
+    HashMap<Integer, Integer> getTimeStamp() {
         return timeStamp;
     }
+
+    public abstract MyTextEvent getUndoEvent();
 }

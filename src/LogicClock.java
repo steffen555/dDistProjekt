@@ -1,15 +1,34 @@
-public class LogicClock {
-    private static int time = 0;
+import java.util.HashMap;
 
-    public static int getAndIncrease() {
-        int res = time;
-        time++;
+public class LogicClock {
+    private static HashMap<Integer, Integer> times = new HashMap<Integer, Integer>();
+
+    public static HashMap<Integer, Integer> getAndIncrease(int id) {
+        if (!times.containsKey(id))
+            times.put(id, 0);
+        HashMap<Integer, Integer> res = times;
+        times.put(id, times.get(id) + 1);
         return res;
     }
 
-    public static int setToMax(int i){
-        time = Math.max(time, i) + 1;
-        return time;
+    public static HashMap<Integer, Integer> setToMax(HashMap<Integer, Integer> i) {
+        for (int j : i.keySet()) {
+            if (!times.containsKey(j))
+                times.put(j, 0);
+            times.put(j, Math.max(times.get(j), i.get(j)));
+        }
+        return times;
+    }
+
+    public static boolean happenedBefore(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
+        for (int i : h1.keySet())
+            if (h1.get(i) >= h2.get(i))
+                return false;
+        return true;
+    }
+
+    public static boolean isConcurrent(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
+        return !happenedBefore(h1, h2) && !happenedBefore(h2, h1);
     }
 
 }
