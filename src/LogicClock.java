@@ -25,6 +25,7 @@ public class LogicClock {
         System.out.println("LC HB");
         for (int i : h1.keySet())
             if (h1.get(i) > h2.get(i)) {
+                System.out.println(h1 + " happened before " + h2);
                 return false;
             }
         return true;
