@@ -32,12 +32,4 @@ public class LogicClock {
     public static boolean isConcurrent(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
         return !happenedBefore(h1, h2) && !happenedBefore(h2, h1);
     }
-
-    public static String toString(HashMap<Integer, Integer> time){
-        String res = "";
-        for(int i : time.keySet()){
-            res += "(" + i + "=" + time.get(i) + "), ";
-        }
-        return res;
-    }
 }

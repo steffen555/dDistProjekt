@@ -13,21 +13,16 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DistributedTextEditor extends JFrame {
 
     private int port = 40501;
-    private int id;
 
     private JTextArea area1 = new JTextArea(20, 120);
     private JTextArea area2 = new JTextArea(20, 120);
     private JTextField ipaddress = new JTextField("IP address here");
     private JTextField portNumber = new JTextField(Integer.toString(port));
 
-    private EventReplayer er;
-    private Thread ert;
-
     private JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
 
     private String currentFile = "Untitled";
     private boolean changed = false;
-    private boolean connected = false;
 
     private WebEventHistory history;
     private DocumentEventCapturer dec;
@@ -79,20 +74,19 @@ public class DistributedTextEditor extends JFrame {
         Save.setEnabled(false);
         SaveAs.setEnabled(false);
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         pack();
+        KeyListener k1 = new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                changed = true;
+                Save.setEnabled(true);
+                SaveAs.setEnabled(true);
+            }
+        };
         area1.addKeyListener(k1);
         setTitle("Disconnected");
         setVisible(true);
     }
-
-    private KeyListener k1 = new KeyAdapter() {
-        public void keyPressed(KeyEvent e) {
-            changed = true;
-            Save.setEnabled(true);
-            SaveAs.setEnabled(true);
-        }
-    };
 
     Action Listen = new AbstractAction("Listen") {
         public void actionPerformed(ActionEvent e) {
@@ -170,12 +164,12 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
-        id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        int id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         history = new WebEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history, id);
         enableDEC();
-        er = new EventReplayer(dec, area1, thisOne, id);
-        ert = new Thread(er);
+        EventReplayer er = new EventReplayer(dec, area1, thisOne, id);
+        Thread ert = new Thread(er);
         ert.start();
     }
 
@@ -199,7 +193,7 @@ public class DistributedTextEditor extends JFrame {
             currentFile = fileName;
             changed = false;
             Save.setEnabled(false);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 

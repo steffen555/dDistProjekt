@@ -32,10 +32,7 @@ public class Client {
         System.out.println("Connecting to server on " + serverName);
         try {
             socket = new Socket(serverName, portNumber);
-            if (socket != null)
-                System.out.println("Connected to server");
-            else
-                System.err.println("Connection failed");
+            System.out.println("Connected to server");
             return socket;
         } catch (IOException e) {
             e.printStackTrace();
