@@ -5,10 +5,11 @@ public class TextInsertEvent extends MyTextEvent {
     private String text;
     private MyTextEvent undoEvent;
 
-    public TextInsertEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, String text) {
+    public TextInsertEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, String text, boolean undoable) {
         super(offset, id, timeStamp);
         this.text = text;
-        undoEvent = new TextRemoveEvent(getOffset(), getID(), getTimeStamp(), getText().length());
+        if (undoable)
+            undoEvent = new TextRemoveEvent(getOffset(), getID(), getTimeStamp(), getText().length(), false);
     }
 
     public String getText() {

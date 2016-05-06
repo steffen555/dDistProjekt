@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class WebEventHistory extends Thread implements IEventHistory {
@@ -13,16 +14,29 @@ public class WebEventHistory extends Thread implements IEventHistory {
     private Client client;
     private Server server;
     private DistributedTextEditor dte;
+    private ArrayList<MyTextEvent> textEvents;
 
     public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
         this.client = new Client(socket, port);
         this.server = new Server(socket, port);
         dte = distributedTextEditor;
+        textEvents = new ArrayList<MyTextEvent>();
+    }
+
+    private void addTextEventToList(MyTextEvent textEvent) {
+        if (textEvents.size() > 0) {
+            MyTextEvent latest = textEvents.get(textEvents.size() - 1);
+            boolean trouble = !LogicClock.happenedBefore(latest, textEvent);
+            if (trouble)
+                System.out.println("Wow! Relax, mate!");
+        }
+            textEvents.add(textEvent);
     }
 
     @Override
     public MyTextEvent take() throws InterruptedException {
         MyTextEvent mte = eventHistory.take();
+        addTextEventToList(mte);
         System.out.println("Received MyTextEvent with time " + mte.getTimeStamp());
         LogicClock.setToMax(mte.getTimeStamp());
         return mte;
@@ -30,6 +44,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public void add(MyTextEvent textEvent) {
+        addTextEventToList(textEvent);
         try {
             if (output == null) {
                 output = new ObjectOutputStream(socket.getOutputStream());
@@ -44,8 +59,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
         socket = server.run();
     }
 
-    public void startClient(String servername) {
-        client.setServerName(servername);
+    public void startClient(String serverName) {
+        client.setServerName(serverName);
         socket = client.run();
     }
 

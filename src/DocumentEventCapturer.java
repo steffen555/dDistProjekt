@@ -46,7 +46,7 @@ public class DocumentEventCapturer extends DocumentFilter {
 
 	/* Queue a copy of the event and then modify the textarea */
         HashMap<Integer, Integer> timeStamp = LogicClock.getAndIncrease(id);
-        eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
+        eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str, true));
         super.insertString(fb, offset, str, a);
     }
 
@@ -54,7 +54,7 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 	/* Queue a copy of the event and then modify the textarea */
         HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
-        eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
+        eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length, true));
         super.remove(fb, offset, length);
     }
 
@@ -66,10 +66,10 @@ public class DocumentEventCapturer extends DocumentFilter {
 	/* Queue a copy of the event and then modify the text */
         HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
         if (length > 0) {
-            eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
+            eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length, true));
         }
         timeStamp = LogicClock.getAndIncrease(id);
-        eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
+        eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str, true));
         super.replace(fb, offset, length, str, a);
     }
 }
