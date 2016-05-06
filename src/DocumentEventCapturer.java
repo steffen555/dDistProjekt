@@ -27,6 +27,7 @@ public class DocumentEventCapturer extends DocumentFilter {
 
     public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id) {
         eventHistory = eventHistoryInstance;
+        this.id = id;
     }
 
     /**

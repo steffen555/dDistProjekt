@@ -170,7 +170,7 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
-        id = ThreadLocalRandom.current().nextInt(0, 1000000000 + 1);
+        id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         history = new WebEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history, id);
         enableDEC();
