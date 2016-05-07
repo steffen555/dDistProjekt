@@ -15,22 +15,40 @@ public class WebEventHistory extends Thread implements IEventHistory {
     private Server server;
     private DistributedTextEditor dte;
     private ArrayList<MyTextEvent> textEvents;
+    private boolean justContinue;
 
     public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
         this.client = new Client(socket, port);
         this.server = new Server(socket, port);
         dte = distributedTextEditor;
         textEvents = new ArrayList<MyTextEvent>();
+        justContinue = true;
     }
 
     private void addTextEventToList(MyTextEvent textEvent) {
         if (textEvents.size() > 0) {
             MyTextEvent latest = textEvents.get(textEvents.size() - 1);
             boolean trouble = !LogicClock.happenedBefore(latest, textEvent);
-            if (trouble)
+            if (trouble) {
+                justContinue = false;
                 System.out.println("Wow! Relax, mate!");
+                boolean noWorries = false;
+                for (int i = textEvents.size() - 1; noWorries; i--) {
+                    eventHistory.add(textEvents.get(i).getUndoEvent());
+                    if (LogicClock.happenedBefore(textEvents.get(i - 1), textEvent)) {
+                        eventHistory.add(textEvent);
+                        for (int j = i; i < textEvents.size() - 1; i++) {
+                            eventHistory.add(textEvents.get(j));
+                        }
+                        noWorries = true;
+                        justContinue = true;
+                    }
+                }
+
+                justContinue = true;
+            }
         }
-            textEvents.add(textEvent);
+        textEvents.add(textEvent);
     }
 
     @Override
@@ -83,7 +101,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public void run() {
         while (true) {
-            if (socket != null) {
+            if (socket != null && justContinue) {
                 try {
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());

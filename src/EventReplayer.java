@@ -51,6 +51,7 @@ public class EventReplayer implements Runnable {
                         EventQueue.invokeAndWait(runnable);
                         ((Thread) runnable).join();
                     } else if (mte instanceof TextRemoveEvent) {
+                        ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
                         final TextRemoveEvent tre = (TextRemoveEvent) mte;
                         Runnable runnable = new Thread() {
                             public void run() {
