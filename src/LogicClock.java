@@ -7,12 +7,12 @@ public class LogicClock {
         if (!times.containsKey(id))
             times.put(id, 0);
         times.put(id, times.get(id) + 1);
-        System.out.println("LC GAI " + id + ", " + times.get(id));
+        System.out.println("LogicClock getAndIncrease " + id + ", " + times.get(id));
         return new HashMap<Integer, Integer>(times);
     }
 
     public static HashMap<Integer, Integer> setToMax(HashMap<Integer, Integer> i) {
-        System.out.println("LC STM");
+        System.out.println("LogicClock setToMax");
         for (int j : i.keySet()) {
             if (!times.containsKey(j))
                 times.put(j, 0);
@@ -22,7 +22,7 @@ public class LogicClock {
     }
 
     public static boolean happenedBefore(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
-        System.out.println("LC HB");
+        System.out.println("LogicClock happenedBefore");
         for (int i : h1.keySet())
             if (h1.get(i) > h2.get(i)) {
                 System.out.println(h1 + " happened before " + h2);

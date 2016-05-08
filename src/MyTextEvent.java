@@ -6,15 +6,17 @@ import java.util.HashMap;
  */
 public abstract class MyTextEvent implements Serializable {
 
+    private int offset;
+    private int id;
+    private HashMap<Integer,Integer> timeStamp;
+    private boolean redoable;
+
     MyTextEvent(int offset, int id, HashMap<Integer, Integer> timeStamp) {
         this.offset = offset;
         this.id = id;
         this.timeStamp = timeStamp;
+        redoable = true;
     }
-
-    private int offset;
-    private int id;
-    private HashMap<Integer,Integer> timeStamp;
 
     int getOffset() {
         return offset;
@@ -29,4 +31,12 @@ public abstract class MyTextEvent implements Serializable {
     }
 
     public abstract MyTextEvent getUndoEvent();
+
+    public void setRedoable(boolean redoable){
+        this.redoable = redoable;
+    }
+
+    public boolean isRedoable(){
+        return redoable;
+    }
 }

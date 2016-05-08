@@ -14,8 +14,7 @@ public class DistributedTextEditor extends JFrame {
 
     private int port = 40501;
 
-    private JTextArea area1 = new JTextArea(20, 120);
-    private JTextArea area2 = new JTextArea(20, 120);
+    private JTextArea area1 = new JTextArea(30, 120);
     private JTextField ipaddress = new JTextField("IP address here");
     private JTextField portNumber = new JTextField(Integer.toString(port));
 
@@ -30,8 +29,6 @@ public class DistributedTextEditor extends JFrame {
 
     public DistributedTextEditor() {
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        area2.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        area2.setEditable(false);
 
         Container content = getContentPane();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -41,12 +38,6 @@ public class DistributedTextEditor extends JFrame {
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         content.add(scroll1, BorderLayout.CENTER);
-
-        JScrollPane scroll2 =
-                new JScrollPane(area2,
-                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        content.add(scroll2, BorderLayout.CENTER);
 
         content.add(ipaddress, BorderLayout.CENTER);
         content.add(portNumber, BorderLayout.CENTER);
@@ -92,7 +83,6 @@ public class DistributedTextEditor extends JFrame {
         public void actionPerformed(ActionEvent e) {
             saveOld();
             area1.setText("");
-            area2.setText("");
             setUp();
             String ip = history.printServerAddress();
             setTitle("I'm listening on " + ip + ":" + port);
@@ -114,7 +104,6 @@ public class DistributedTextEditor extends JFrame {
             }
             saveOld();
             area1.setText("");
-            area2.setText("");
             setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
             setUp();
             history.startClient(ip);
@@ -166,7 +155,7 @@ public class DistributedTextEditor extends JFrame {
     private void setUp() {
         int id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         history = new WebEventHistory(port, thisOne);
-        dec = new DocumentEventCapturer(history, id);
+        dec = new DocumentEventCapturer(history, id, area1);
         enableDEC();
         EventReplayer er = new EventReplayer(dec, area1, thisOne, id);
         Thread ert = new Thread(er);

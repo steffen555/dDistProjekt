@@ -61,7 +61,7 @@ public class EventReplayer implements Runnable {
                                     playSound("typewriter_key.wav");
                                 } catch (Exception e) {
                                     System.err.println(e.toString());
-                        /* We catch all axceptions, as an uncaught exception would make the
+                        /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
                                 }
@@ -74,6 +74,7 @@ public class EventReplayer implements Runnable {
                 }
             } catch (Exception e) {
                 wasInterrupted = true;
+                e.printStackTrace();
             }
         }
         System.out.println("I'm the thread running the EventReplayer, now I die!");

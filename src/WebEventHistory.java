@@ -25,37 +25,34 @@ public class WebEventHistory extends Thread implements IEventHistory {
         justContinue = true;
     }
 
-    private void addTextEventToList(MyTextEvent textEvent) {
+    public void addTextEventToList(MyTextEvent textEvent) {
         if (textEvents.size() > 0) {
             MyTextEvent latest = textEvents.get(textEvents.size() - 1);
             boolean trouble = !LogicClock.happenedBefore(latest, textEvent);
             if (trouble) {
-                justContinue = false;
-                System.out.println("Wow! Relax, mate!");
-                boolean noWorries = false;
-                for (int i = textEvents.size() - 1; noWorries; i--) {
-                    eventHistory.add(textEvents.get(i).getUndoEvent());
-                    if (LogicClock.happenedBefore(textEvents.get(i - 1), textEvent)) {
-                        eventHistory.add(textEvent);
-                        for (int j = i; i < textEvents.size() - 1; i++) {
-                            eventHistory.add(textEvents.get(j));
-                        }
-                        noWorries = true;
-                        justContinue = true;
-                    }
-                }
-
-                justContinue = true;
+                System.out.println("Concurrency has been detected");
             }
         }
+        justContinue = false;
+        textEvent.setRedoable(false);
+        MyTextEvent undoEvent = textEvent.getUndoEvent();
+        System.out.println("Got undoevent: " + undoEvent + " from " + textEvent.getClass().getName());
+        undoEvent.setRedoable(false);
+        System.out.println("UndoEvent: " + undoEvent);
+        eventHistory.add(undoEvent);
+        System.out.println("Just undid");
+        eventHistory.add(textEvent);
+        System.out.println("Just redid");
+        justContinue = true;
         textEvents.add(textEvent);
     }
 
     @Override
     public MyTextEvent take() throws InterruptedException {
         MyTextEvent mte = eventHistory.take();
-        addTextEventToList(mte);
-        System.out.println("Received MyTextEvent with time " + mte.getTimeStamp());
+        System.out.println("Received MyTextEvent. Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
+        if (mte.isRedoable())
+            addTextEventToList(mte);
         LogicClock.setToMax(mte.getTimeStamp());
         return mte;
     }
@@ -63,6 +60,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public void add(MyTextEvent textEvent) {
         addTextEventToList(textEvent);
+        textEvent.setRedoable(true);
         try {
             if (output == null) {
                 output = new ObjectOutputStream(socket.getOutputStream());
