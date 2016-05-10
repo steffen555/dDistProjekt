@@ -33,6 +33,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
             MyTextEvent latest = textEvents.get(textEvents.size() - 1);
             boolean trouble = !LogicClock.happenedBefore(latest, textEvent);
             if (trouble) {
+                undo(textEvent);
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
                 justContinue = false;
                 int lastBefore = textEvents.size() - 1;
@@ -81,8 +82,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public MyTextEvent take() throws InterruptedException {
         MyTextEvent mte = eventHistory.take();
         System.out.println("Received MyTextEvent. Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
-        if (mte.isRedoable() && addTextEventToList(mte))
-            mte = eventHistory.take();
+        if (mte.isRedoable() && addTextEventToList(mte)) {
+        }
         LogicClock.setToMax(mte.getTimeStamp());
         return mte;
     }
