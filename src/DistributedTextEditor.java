@@ -26,6 +26,7 @@ public class DistributedTextEditor extends JFrame {
     private WebEventHistory history;
     private DocumentEventCapturer dec;
     private DistributedTextEditor thisOne = this;
+    private int id;
 
     public DistributedTextEditor() {
         Disconnect.setEnabled(false);
@@ -83,6 +84,8 @@ public class DistributedTextEditor extends JFrame {
                 history.undoLatestEvent();
             }
         });
+
+        id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     Action Listen = new AbstractAction("Listen") {
@@ -166,7 +169,6 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
-        int id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         history = new WebEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history, id, area1);
         enableDEC();

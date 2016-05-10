@@ -38,9 +38,9 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
                 System.out.println("Last event before the received: " + lastBefore + ", received events: " + textEvents.size());
-                List<MyTextEvent> concurrent = textEvents.subList(lastBefore + 1, textEvents.size());
-
+                List<MyTextEvent> concurrent = textEvents.subList(lastBefore, textEvents.size());
                 textEvents.removeAll(concurrent);
+                System.out.println("Concurrent events: " + concurrent.size());
                 for (int i = concurrent.size() - 1; i >= 0; i--) {
                     undo(concurrent.get(i));
                 }
