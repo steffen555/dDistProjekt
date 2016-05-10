@@ -2,10 +2,12 @@ import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DistributedTextEditor extends JFrame {
@@ -206,6 +208,23 @@ public class DistributedTextEditor extends JFrame {
     }
 
     public static void main(String[] arg) {
+        //Use GTK-theme on linux-systems, so we don't get that ugly SWING-UI
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(info.getClassName())) {
+                try {
+                    UIManager.setLookAndFeel(info.getClassName());
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedLookAndFeelException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
         new DistributedTextEditor();
     }
 
