@@ -12,7 +12,6 @@ public class LogicClock {
     }
 
     public static HashMap<Integer, Integer> setToMax(HashMap<Integer, Integer> i) {
-        System.out.println("LogicClock setToMax");
         for (int j : i.keySet()) {
             if (!times.containsKey(j))
                 times.put(j, 0);
@@ -22,10 +21,9 @@ public class LogicClock {
     }
 
     public static boolean happenedBefore(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
-        System.out.println("LogicClock happenedBefore");
         for (int i : h1.keySet())
             if (h1.get(i) > h2.get(i)) {
-                System.out.println(h1 + " happened before " + h2);
+                System.out.println("!(" + h1 + " happened before " + h2 + ")");
                 return false;
             }
         return true;

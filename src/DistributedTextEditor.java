@@ -2,12 +2,10 @@ import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DistributedTextEditor extends JFrame {
@@ -28,6 +26,7 @@ public class DistributedTextEditor extends JFrame {
     private DistributedTextEditor thisOne = this;
 
     public DistributedTextEditor() {
+        Disconnect.setEnabled(false);
         area1.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
         Container content = getContentPane();
@@ -38,9 +37,6 @@ public class DistributedTextEditor extends JFrame {
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         content.add(scroll1, BorderLayout.CENTER);
-
-        content.add(ipaddress, BorderLayout.CENTER);
-        content.add(portNumber, BorderLayout.CENTER);
 
         JMenuBar JMB = new JMenuBar();
         setJMenuBar(JMB);
@@ -77,6 +73,14 @@ public class DistributedTextEditor extends JFrame {
         area1.addKeyListener(k1);
         setTitle("Disconnected");
         setVisible(true);
+
+        area1.getInputMap().put(KeyStroke.getKeyStroke('+'), "undoMapKey");
+        area1.getActionMap().put("undoMapKey", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                history.undoLatestEvent();
+            }
+        });
     }
 
     Action Listen = new AbstractAction("Listen") {
@@ -91,27 +95,31 @@ public class DistributedTextEditor extends JFrame {
             changed = false;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
+            Disconnect.setEnabled(true);
+            Listen.setEnabled(false);
+            Connect.setEnabled(false);
         }
     };
 
     Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
             String ip;
-            if (ipaddress.getText().equals("IP address here")) {
-                ip = "localhost";
-            } else {
-                ip = ipaddress.getText();
+            ip = JOptionPane.showInputDialog(thisOne, "IP address:", "localhost");
+            if (ip != null) {
+                saveOld();
+                area1.setText("");
+                setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
+                setUp();
+                history.startClient(ip);
+                history.start();
+                setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
+                changed = false;
+                Save.setEnabled(false);
+                SaveAs.setEnabled(false);
+                Disconnect.setEnabled(true);
+                Listen.setEnabled(false);
+                Connect.setEnabled(false);
             }
-            saveOld();
-            area1.setText("");
-            setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
-            setUp();
-            history.startClient(ip);
-            history.start();
-            setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
-            changed = false;
-            Save.setEnabled(false);
-            SaveAs.setEnabled(false);
         }
     };
 
@@ -123,6 +131,9 @@ public class DistributedTextEditor extends JFrame {
             //((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
             disableDEC();
             System.out.println("Godt");
+            Disconnect.setEnabled(false);
+            Listen.setEnabled(true);
+            Connect.setEnabled(true);
         }
     };
 

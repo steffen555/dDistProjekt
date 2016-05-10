@@ -22,4 +22,9 @@ public class TextRemoveEvent extends MyTextEvent {
     public MyTextEvent getUndoEvent() {
         return undoEvent;
     }
+
+    @Override
+    public String toString(){
+        return "TextRemoveEvent: remove " + getLength() + " characters at " + getOffset() + ", time: " + getTimeStamp();
+    }
 }

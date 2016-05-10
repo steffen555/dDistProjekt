@@ -19,4 +19,9 @@ public class TextInsertEvent extends MyTextEvent {
         System.out.println("Created undo event: " + undo);
         return undo;
     }
+
+    @Override
+    public String toString(){
+        return "TextInsertEvent: insert " + getText() + " at " + getOffset() + ", time: " + getTimeStamp();
+    }
 }
