@@ -78,6 +78,7 @@ public class EventReplayer implements Runnable {
             }
         }
         System.out.println("I'm the thread running the EventReplayer, now I die!");
+        dte.disconnect();
     }
 
     public static synchronized void playSound(final String url) {
