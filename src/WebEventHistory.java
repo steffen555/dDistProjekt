@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class WebEventHistory extends Thread implements IEventHistory {
@@ -38,7 +39,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
                 System.out.println("Last event before the received: " + lastBefore + ", received events: " + textEvents.size());
-                List<MyTextEvent> concurrent = textEvents.subList(lastBefore + 1, textEvents.size());
+                List<MyTextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
+                CopyOnWriteArrayList<MyTextEvent> concurrent = new CopyOnWriteArrayList<MyTextEvent>(preConcurrent);
                 System.out.println("Concurrent events: " + concurrent.size());
                 for (int i = concurrent.size() - 1; i >= 0; i--) {
                     undo(concurrent.get(i));
