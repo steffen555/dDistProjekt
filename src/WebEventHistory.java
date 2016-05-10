@@ -1,3 +1,6 @@
+import com.sun.codemodel.internal.JOp;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,6 +38,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
             if (trouble) {
                 undo(textEvent);
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
+                JOptionPane.showMessageDialog(dte, "Have a nice day :)");
                 justContinue = false;
                 int lastBefore = textEvents.size() - 1;
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
