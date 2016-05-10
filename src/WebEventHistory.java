@@ -49,7 +49,6 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
                 redo(textEvent);
                 textEvents.add(lastBefore, textEvent);
-
                 for (MyTextEvent aConcurrent : concurrent) {
                     redo(aConcurrent);
                 }
@@ -81,7 +80,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public MyTextEvent take() throws InterruptedException {
         MyTextEvent mte = eventHistory.take();
-        System.out.println("Received MyTextEvent. Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
+        System.out.println("Received " + mte.toString() + " Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
         if (mte.isRedoable() && addTextEventToList(mte)) {
         }
         LogicClock.setToMax(mte.getTimeStamp());
