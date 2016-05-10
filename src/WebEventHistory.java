@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -95,11 +96,6 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public void add(MyTextEvent textEvent) {
-        int i = 0;
-        while (!justContinue) {
-            i++;
-        }
-        System.out.println("Wee! " + i);
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
         send(textEvent);
@@ -120,9 +116,14 @@ public class WebEventHistory extends Thread implements IEventHistory {
         socket = server.run();
     }
 
-    public void startClient(String serverName) {
+    public boolean startClient(String serverName) {
         client.setServerName(serverName);
         socket = client.run();
+        if (socket == null) {
+            System.out.println("Error while connecting, aborting.");
+            return false;
+        }
+        return true;
     }
 
     public String printServerAddress() {

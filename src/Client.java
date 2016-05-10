@@ -35,7 +35,7 @@ public class Client {
             System.out.println("Connected to server");
             return socket;
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         System.err.println("Connection failed");
         return null;
