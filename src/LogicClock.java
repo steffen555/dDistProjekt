@@ -1,4 +1,6 @@
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LogicClock {
     private static HashMap<Integer, Integer> times = new HashMap<Integer, Integer>();
@@ -21,7 +23,9 @@ public class LogicClock {
     }
 
     public static boolean happenedBefore(HashMap<Integer, Integer> h1, HashMap<Integer, Integer> h2) {
-        for (int i : h1.keySet())
+        Set<Integer> intersection = new HashSet<Integer>(h1.keySet());
+        intersection.retainAll(h2.keySet());
+        for (int i : intersection)
             if (h1.get(i) > h2.get(i)) {
                 System.out.println("!(" + h1 + " happened before " + h2 + ")");
                 return false;
