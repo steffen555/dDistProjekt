@@ -1,3 +1,5 @@
+import com.sun.codemodel.internal.JOp;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -38,7 +40,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 TextInsertEvent latestTextInsertEvent = (TextInsertEvent) latest;
                 iAmTheGreatest = textInsertEvent.getText().hashCode() < latestTextInsertEvent.getText().hashCode();
             }
-            boolean trouble = !LogicClock.happenedBefore(latest, textEvent) && latest.getOffset() < textEvent.getOffset();
+            boolean trouble = !LogicClock.happenedBefore(latest, textEvent) && latest.getOffset() <= textEvent.getOffset();
             if (trouble && iAmTheGreatest) {
                 undo(textEvent);
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
@@ -88,14 +90,15 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public MyTextEvent take() throws InterruptedException {
         MyTextEvent mte = eventHistory.take();
         System.out.println("Received " + mte.toString() + " Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
-        if (mte.isRedoable() && addTextEventToList(mte)) {
-        }
+        if (mte.isRedoable())
+            addTextEventToList(mte);
         LogicClock.setToMax(mte.getTimeStamp());
         return mte;
     }
 
     @Override
     public void add(MyTextEvent textEvent) {
+        while(!justContinue) {}
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
         send(textEvent);
