@@ -85,7 +85,7 @@ public class DistributedTextEditor extends JFrame {
             }
         });
 
-        id = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        id = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
     }
 
     Action Listen = new AbstractAction("Listen") {
