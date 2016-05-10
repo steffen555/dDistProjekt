@@ -1,6 +1,3 @@
-import com.sun.codemodel.internal.JOp;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,11 +31,16 @@ public class WebEventHistory extends Thread implements IEventHistory {
         System.out.println("Event list size: " + textEvents.size());
         if (textEvents.size() > 0) {
             MyTextEvent latest = textEvents.get(textEvents.size() - 1);
-            boolean trouble = !LogicClock.happenedBefore(latest, textEvent);
-            if (trouble) {
+            boolean iAmTheGreatest = true;
+            if (textEvent.getOffset() == latest.getOffset() && textEvent.getClass() == TextInsertEvent.class && latest.getClass() == TextInsertEvent.class) {
+                TextInsertEvent textInsertEvent = (TextInsertEvent) textEvent;
+                TextInsertEvent latestTextInsertEvent = (TextInsertEvent) latest;
+                iAmTheGreatest = textInsertEvent.getText().hashCode() < latestTextInsertEvent.getText().hashCode();
+            }
+            boolean trouble = !LogicClock.happenedBefore(latest, textEvent) && latest.getOffset() < textEvent.getOffset();
+            if (trouble && iAmTheGreatest) {
                 undo(textEvent);
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
-                JOptionPane.showMessageDialog(dte, "Have a nice day :)");
                 justContinue = false;
                 int lastBefore = textEvents.size() - 1;
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
@@ -93,6 +95,11 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public void add(MyTextEvent textEvent) {
+        int i = 0;
+        while (!justContinue) {
+            i++;
+        }
+        System.out.println("Wee! " + i);
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
         send(textEvent);
