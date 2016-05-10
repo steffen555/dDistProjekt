@@ -1,5 +1,3 @@
-import com.sun.codemodel.internal.JOp;
-
 import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -113,9 +111,14 @@ public class WebEventHistory extends Thread implements IEventHistory {
         socket = server.run();
     }
 
-    public void startClient(String serverName) {
+    public boolean startClient(String serverName) {
         client.setServerName(serverName);
         socket = client.run();
+        if (socket == null) {
+            System.out.println("Error while connecting, aborting.");
+            return false;
+        }
+        return true;
     }
 
     public String printServerAddress() {

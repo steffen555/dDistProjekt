@@ -115,32 +115,39 @@ public class DistributedTextEditor extends JFrame {
                 area1.setText("");
                 setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
                 setUp();
-                history.startClient(ip);
-                history.start();
-                setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
-                changed = false;
-                Save.setEnabled(false);
-                SaveAs.setEnabled(false);
-                Disconnect.setEnabled(true);
-                Listen.setEnabled(false);
-                Connect.setEnabled(false);
+                if (history.startClient(ip)) {
+                    history.start();
+                    setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
+                    changed = false;
+                    Save.setEnabled(false);
+                    SaveAs.setEnabled(false);
+                    Disconnect.setEnabled(true);
+                    Listen.setEnabled(false);
+                    Connect.setEnabled(false);
+                } else {
+                    disconnect();
+                }
             }
         }
     };
 
     Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
-            setTitle("Disconnected");
-            history.deregisterOnPort();
-            history.interrupt();
-            //((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
-            disableDEC();
-            System.out.println("Godt");
-            Disconnect.setEnabled(false);
-            Listen.setEnabled(true);
-            Connect.setEnabled(true);
+            disconnect();
         }
     };
+
+    public void disconnect() {
+        setTitle("Disconnected");
+        history.deregisterOnPort();
+        history.interrupt();
+        //((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
+        disableDEC();
+        System.out.println("Godt");
+        Disconnect.setEnabled(false);
+        Listen.setEnabled(true);
+        Connect.setEnabled(true);
+    }
 
     Action Save = new AbstractAction("Save") {
         public void actionPerformed(ActionEvent e) {
