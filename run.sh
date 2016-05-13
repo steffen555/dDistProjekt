@@ -1,8 +1,11 @@
 #!/bin/bash
 
-echo "Starter to instanser af programmet, vent venligst."
+echo "Kompilerer programmet, vent venligst."
+cd src
 
-cd out/production/dDistProjekt
+javac *.java
+
+echo "Starter to instanser af programmet, vent venligst."
 
 java DistributedTextEditor &
 java DistributedTextEditor &

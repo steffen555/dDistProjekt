@@ -1,6 +1,12 @@
+import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.HashMap;
 
 /**
  * This class captures and remembers the text events of the given document on
@@ -23,9 +29,12 @@ public class DocumentEventCapturer extends DocumentFilter {
      */
     protected IEventHistory eventHistory;
     private int id;
+    private JTextArea area;
 
-    public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id) {
+    public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id, JTextArea area) {
         eventHistory = eventHistoryInstance;
+        this.id = id;
+        this.area = area;
     }
 
     /**
@@ -43,16 +52,21 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = LogicClock.getAndIncrease();
-        eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
+        HashMap<Integer, Integer> timeStamp = LogicClock.getAndIncrease(id);
+        TextInsertEvent event = new TextInsertEvent(offset, id, timeStamp, str);
+        eventHistory.add(event);
         super.insertString(fb, offset, str, a);
     }
 
     public void remove(FilterBypass fb, int offset, int length)
             throws BadLocationException {
 	/* Queue a copy of the event and then modify the textarea */
-        int timeStamp = LogicClock.getAndIncrease();
-        eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
+        HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
+        TextRemoveEvent event = new TextRemoveEvent(offset, id, timeStamp, length);
+        String removedText = area.getText().substring(offset, offset + length);
+        System.out.println("Text removed: " + removedText);
+        event.createUndoEvent(removedText);
+        eventHistory.add(event);
         super.remove(fb, offset, length);
     }
 
@@ -62,10 +76,11 @@ public class DocumentEventCapturer extends DocumentFilter {
             throws BadLocationException {
 	
 	/* Queue a copy of the event and then modify the text */
-        int timeStamp = LogicClock.getAndIncrease();
+        HashMap<Integer,Integer> timeStamp = LogicClock.getAndIncrease(id);
         if (length > 0) {
             eventHistory.add(new TextRemoveEvent(offset, id, timeStamp, length));
         }
+        timeStamp = LogicClock.getAndIncrease(id);
         eventHistory.add(new TextInsertEvent(offset, id, timeStamp, str));
         super.replace(fb, offset, length, str, a);
     }
