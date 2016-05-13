@@ -28,10 +28,9 @@ public class EventReplayer implements Runnable {
     public void run() {
         boolean wasInterrupted = false;
         while (!wasInterrupted) {
-            //waitForOneSecond();
             try {
                 MyTextEvent mte = dec.take();
-                if (mte.getID() != id) {
+                if (mte.getID() != id || !mte.isRedoable()) {
                     dte.disableDEC();
                     if (mte instanceof TextInsertEvent) {
                         final TextInsertEvent tie = (TextInsertEvent) mte;
@@ -42,7 +41,7 @@ public class EventReplayer implements Runnable {
                                     // Sound by freesfx.co.uk
                                     playSound("typewriter_key.wav");
                                 } catch (Exception e) {
-                                    System.err.println(e);
+                                    System.err.println(e.toString());
                         /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
@@ -52,6 +51,7 @@ public class EventReplayer implements Runnable {
                         EventQueue.invokeAndWait(runnable);
                         ((Thread) runnable).join();
                     } else if (mte instanceof TextRemoveEvent) {
+                        ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
                         final TextRemoveEvent tre = (TextRemoveEvent) mte;
                         Runnable runnable = new Thread() {
                             public void run() {
@@ -60,8 +60,8 @@ public class EventReplayer implements Runnable {
                                     // Sound by freesfx.co.uk
                                     playSound("typewriter_key.wav");
                                 } catch (Exception e) {
-                                    System.err.println(e);
-                        /* We catch all axceptions, as an uncaught exception would make the
+                                    System.err.println(e.toString());
+                        /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
                                 }
@@ -72,18 +72,13 @@ public class EventReplayer implements Runnable {
                     }
                     dte.enableDEC();
                 }
-            } catch (Exception _) {
+            } catch (Exception e) {
                 wasInterrupted = true;
+                e.printStackTrace();
             }
         }
         System.out.println("I'm the thread running the EventReplayer, now I die!");
-    }
-
-    public void waitForOneSecond() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException _) {
-        }
+        dte.disconnect();
     }
 
     public static synchronized void playSound(final String url) {

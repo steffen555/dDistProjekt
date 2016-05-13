@@ -18,11 +18,10 @@ public class Server {
     protected String printServerAddress() {
         try {
             InetAddress localhost = InetAddress.getLocalHost();
-            String localhostAddress = localhost.getHostAddress();
-            return localhostAddress;
+            return localhost.getHostAddress();
         } catch (UnknownHostException e) {
             System.err.println("Cannot resolve the Internet address of the local host.");
-            System.err.println(e);
+            System.err.println(e.toString());
             System.exit(-1);
         }
         return "Something went wrong.";
@@ -34,7 +33,7 @@ public class Server {
                 serverSocket.close();
                 serverSocket = null;
             } catch (IOException e) {
-                System.err.println(e);
+                System.err.println(e.toString());
             }
         }
     }
