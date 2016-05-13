@@ -1,6 +1,3 @@
-import com.sun.codemodel.internal.JOp;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -83,7 +80,9 @@ public class WebEventHistory extends Thread implements IEventHistory {
     }
 
     public void undoLatestEvent() {
-        System.out.println("Whoops!");
+        MyTextEvent toUndo = textEvents.remove(textEvents.size() - 1);
+        undo(toUndo);
+        send(toUndo.getUndoEvent());
     }
 
     @Override
@@ -98,7 +97,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public void add(MyTextEvent textEvent) {
-        while(!justContinue) {}
+        while (!justContinue) {
+        }
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
         send(textEvent);
