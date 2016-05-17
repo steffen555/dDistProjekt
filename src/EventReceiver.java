@@ -23,7 +23,7 @@ public class EventReceiver extends Thread{
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());
                     }
-                    MyTextEvent inputEvent = (MyTextEvent) input.readObject();
+                    TextEvent inputEvent = (TextEvent) input.readObject();
                     queue.add(inputEvent);
                 } catch (IOException e) {
                     communicator.disconnect(socket);

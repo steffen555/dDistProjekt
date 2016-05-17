@@ -37,7 +37,7 @@ public class LogicClock {
         return !happenedBefore(h1, h2) && !happenedBefore(h2, h1);
     }
 
-    public static boolean happenedBefore(MyTextEvent mte1, MyTextEvent mte2) {
+    public static boolean happenedBefore(TextEvent mte1, TextEvent mte2) {
         return happenedBefore(mte1.getTimeStamp(), mte2.getTimeStamp());
     }
 }

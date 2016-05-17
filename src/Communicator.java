@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -17,13 +18,15 @@ public class Communicator extends Thread {
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private LinkedBlockingQueue<Object> eventQueue;
+    private ArrayList<TextEvent> events;
 
-    public Communicator(int port) {
+    public Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
         eventQueue = new LinkedBlockingQueue<Object>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
+        this.events = events;
     }
 
     public boolean connect(String serverName) {
@@ -56,6 +59,9 @@ public class Communicator extends Thread {
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
                 addReceiver(socket);
+                for(TextEvent mte : events){
+                    send(mte, socket);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -93,13 +99,17 @@ public class Communicator extends Thread {
 
     public void send(Object o) {
         for (Socket socket : sockets.keySet()) {
-            try {
-                if (!outputs.containsKey(socket))
-                    outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
-                outputs.get(socket).writeObject(o);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            send(o, socket);
+        }
+    }
+
+    private void send(Object o, Socket socket){
+        try {
+            if (!outputs.containsKey(socket))
+                outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
+            outputs.get(socket).writeObject(o);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

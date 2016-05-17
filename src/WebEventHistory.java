@@ -5,21 +5,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class WebEventHistory extends Thread implements IEventHistory {
 
-    protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
-    private ArrayList<MyTextEvent> textEvents;
+    protected LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
+    private ArrayList<TextEvent> textEvents;
     private boolean justContinue;
     private Communicator comm;
 
     public WebEventHistory(int port) {
-        textEvents = new ArrayList<MyTextEvent>();
+        textEvents = new ArrayList<TextEvent>();
         justContinue = true;
-        comm = new Communicator(port);
+        comm = new Communicator(port, textEvents);
     }
 
-    public boolean addTextEventToList(MyTextEvent textEvent) {
+    public boolean addTextEventToList(TextEvent textEvent) {
         System.out.println("Event list size: " + textEvents.size());
         if (textEvents.size() > 0) {
-            MyTextEvent latest = textEvents.get(textEvents.size() - 1);
+            TextEvent latest = textEvents.get(textEvents.size() - 1);
             boolean iAmTheGreatest = true;
             if (textEvent.getOffset() == latest.getOffset() && textEvent.getClass() == TextInsertEvent.class && latest.getClass() == TextInsertEvent.class) {
                 TextInsertEvent textInsertEvent = (TextInsertEvent) textEvent;
@@ -35,8 +35,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
                 System.out.println("Last event before the received: " + lastBefore + ", received events: " + textEvents.size());
-                List<MyTextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
-                CopyOnWriteArrayList<MyTextEvent> concurrent = new CopyOnWriteArrayList<MyTextEvent>(preConcurrent);
+                List<TextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
+                CopyOnWriteArrayList<TextEvent> concurrent = new CopyOnWriteArrayList<TextEvent>(preConcurrent);
                 System.out.println("Concurrent events: " + concurrent.size());
                 for (int i = concurrent.size() - 1; i >= 0; i--) {
                     undo(concurrent.get(i));
@@ -44,7 +44,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
                 redo(textEvent);
                 textEvents.add(lastBefore, textEvent);
-                for (MyTextEvent aConcurrent : concurrent) {
+                for (TextEvent aConcurrent : concurrent) {
                     redo(aConcurrent);
                 }
                 justContinue = true;
@@ -55,28 +55,28 @@ public class WebEventHistory extends Thread implements IEventHistory {
         return false;
     }
 
-    private void undo(MyTextEvent mte) {
-        MyTextEvent undoEvent = mte.getUndoEvent();
+    private void undo(TextEvent mte) {
+        TextEvent undoEvent = mte.getUndoEvent();
         undoEvent.setRedoable(false);
         eventHistory.add(undoEvent);
         System.out.println("Undid " + mte.toString() + "; did " + undoEvent.toString());
     }
 
-    private void redo(MyTextEvent mte) {
+    private void redo(TextEvent mte) {
         mte.setRedoable(false);
         eventHistory.add(mte);
         System.out.println("Redid " + mte.toString());
     }
 
     public void undoLatestEvent() {
-        MyTextEvent toUndo = textEvents.remove(textEvents.size() - 1);
+        TextEvent toUndo = textEvents.remove(textEvents.size() - 1);
         undo(toUndo);
         comm.send(toUndo.getUndoEvent());
     }
 
     @Override
-    public MyTextEvent take() throws InterruptedException {
-        MyTextEvent mte = eventHistory.take();
+    public TextEvent take() throws InterruptedException {
+        TextEvent mte = eventHistory.take();
         System.out.println("Received " + mte.toString() + " Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
         if (mte.isRedoable())
             addTextEventToList(mte);
@@ -85,7 +85,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     }
 
     @Override
-    public void add(MyTextEvent textEvent) {
+    public void add(TextEvent textEvent) {
         while (!justContinue) {
             int i = 0;
             i++;
@@ -117,7 +117,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void run() {
         while (true) {
             if (justContinue) {
-                eventHistory.add((MyTextEvent) comm.receiveObject());
+                eventHistory.add((TextEvent) comm.receiveObject());
             }
         }
     }

@@ -1,6 +1,6 @@
 public interface IEventHistory {
 
-    MyTextEvent take() throws InterruptedException;
+    TextEvent take() throws InterruptedException;
 
-    void add(MyTextEvent textEvent);
+    void add(TextEvent textEvent);
 }

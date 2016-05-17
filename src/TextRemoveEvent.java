@@ -1,9 +1,9 @@
 import java.util.HashMap;
 
-public class TextRemoveEvent extends MyTextEvent {
+public class TextRemoveEvent extends TextEvent {
 
     private int length;
-    private MyTextEvent undoEvent;
+    private TextEvent undoEvent;
 
     public TextRemoveEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, int length) {
         super(offset, id, timeStamp);
@@ -19,7 +19,7 @@ public class TextRemoveEvent extends MyTextEvent {
     }
 
     @Override
-    public MyTextEvent getUndoEvent() {
+    public TextEvent getUndoEvent() {
         return undoEvent;
     }
 

@@ -29,7 +29,7 @@ public class EventReplayer implements Runnable {
         boolean wasInterrupted = false;
         while (!wasInterrupted) {
             try {
-                MyTextEvent mte = dec.take();
+                TextEvent mte = dec.take();
                 if (mte.getID() != id || !mte.isRedoable()) {
                     dte.disableDEC();
                     if (mte instanceof TextInsertEvent) {

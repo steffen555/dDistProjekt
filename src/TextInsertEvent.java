@@ -1,6 +1,6 @@
 import java.util.HashMap;
 
-public class TextInsertEvent extends MyTextEvent {
+public class TextInsertEvent extends TextEvent {
 
     private String text;
 
@@ -14,7 +14,7 @@ public class TextInsertEvent extends MyTextEvent {
     }
 
     @Override
-    public MyTextEvent getUndoEvent() {
+    public TextEvent getUndoEvent() {
         TextRemoveEvent undo = new TextRemoveEvent(getOffset(), getID(), getTimeStamp(), getText().length());
         System.out.println("Created undo event: " + undo);
         return undo;
