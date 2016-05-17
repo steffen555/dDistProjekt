@@ -21,6 +21,7 @@ public class DistributedTextEditor extends JFrame {
 
     private String currentFile = "Untitled";
     private boolean changed = false;
+    private boolean connected = false;
 
     private WebEventHistory history;
     private DocumentEventCapturer dec;
@@ -94,14 +95,17 @@ public class DistributedTextEditor extends JFrame {
             setUp();
             String ip = history.printServerAddress();
             setTitle("I'm listening on " + ip + ":" + port);
+            if(connected) {
+                history.startServer();
+                return;
+            }
             history.startServer();
             history.start();
             changed = false;
+            connected = true;
             Save.setEnabled(false);
             SaveAs.setEnabled(false);
             Disconnect.setEnabled(true);
-            Listen.setEnabled(false);
-            Connect.setEnabled(false);
         }
     };
 
@@ -114,15 +118,18 @@ public class DistributedTextEditor extends JFrame {
                 area1.setText("");
                 setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
                 setUp();
+                if(connected) {
+                    history.startClient(ip);
+                    return;
+                }
                 if (history.startClient(ip)) {
                     history.start();
                     setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
                     changed = false;
+                    connected = true;
                     Save.setEnabled(false);
                     SaveAs.setEnabled(false);
                     Disconnect.setEnabled(true);
-                    Listen.setEnabled(false);
-                    Connect.setEnabled(false);
                 } else {
                     disconnect();
                 }
@@ -142,6 +149,7 @@ public class DistributedTextEditor extends JFrame {
         history.interrupt();
         disableDEC();
         System.out.println("Godt");
+        connected = false;
         Disconnect.setEnabled(false);
         Listen.setEnabled(true);
         Connect.setEnabled(true);

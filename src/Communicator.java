@@ -5,23 +5,24 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 public class Communicator {
 
     protected int portNumber;
-    private Socket socket;
-    ServerSocket serverSocket = null;
+    private HashMap<Socket, ServerSocket> sockets;
     private ObjectOutputStream output;
     private ObjectInputStream input;
 
     public Communicator(int port) {
+        sockets = new HashMap<Socket, ServerSocket>();
         this.portNumber = port;
     }
 
     public boolean connect(String serverName) {
         System.out.println("Connecting to server on " + serverName);
         try {
-            socket = new Socket(serverName, portNumber);
+            sockets.put(new Socket(serverName, portNumber), null);
             System.out.println("Connected to server");
             return true;
         } catch (IOException e) {
@@ -31,8 +32,9 @@ public class Communicator {
         return false;
     }
 
-    public Socket listen() {
-        socket = new Socket();
+    public void listen() {
+        Socket socket;
+        ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
@@ -43,7 +45,8 @@ public class Communicator {
             try {
                 socket = serverSocket.accept();
                 System.out.println("Connected to client");
-                return socket;
+                sockets.put(socket, serverSocket);
+                return;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -51,17 +54,19 @@ public class Communicator {
     }
 
     public void deregister() {
-        try {
-            if (serverSocket != null) {
-                serverSocket.close();
-                serverSocket = null;
+        for (Socket socket : sockets.keySet()) {
+            ServerSocket serverSocket = sockets.get(socket);
+            try {
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
+                if (socket != null) {
+                    socket.close();
+                }
+                sockets.remove(socket);
+            } catch (IOException e) {
+                System.err.println(e.toString());
             }
-            if (socket != null) {
-                socket.close();
-                socket = null;
-            }
-        } catch (IOException e) {
-            System.err.println(e.toString());
         }
     }
 
@@ -78,19 +83,21 @@ public class Communicator {
     }
 
     public void send(Object o) {
-        try {
-            if (output == null) {
+        for (Socket socket : sockets.keySet()) {
+            try {
                 output = new ObjectOutputStream(socket.getOutputStream());
+                output.writeObject(o);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            output.writeObject(o);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     public Object receiveObject() throws IOException, ClassNotFoundException {
-        if (input == null)
+        for (Socket socket : sockets.keySet()) {
             input = new ObjectInputStream(socket.getInputStream());
-        return input.readObject();
+            return input.readObject();
+        }
+        return null;
     }
 }

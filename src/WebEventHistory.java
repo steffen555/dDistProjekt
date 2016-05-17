@@ -91,6 +91,9 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void add(MyTextEvent textEvent) {
         while (!justContinue) {
             int i = 0;
+            i++;
+            if (i < 0)
+                System.out.println("hello");
         }
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
