@@ -10,11 +10,10 @@ public class EventReceiver extends Thread{
     private Communicator communicator;
     private ObjectInputStream input;
 
-    public EventReceiver(Socket socket, LinkedBlockingQueue queue, Communicator communicator, ObjectInputStream input) {
+    public EventReceiver(Socket socket, LinkedBlockingQueue queue, Communicator communicator) {
         this.socket = socket;
         this.queue = queue;
         this.communicator = communicator;
-        this.input = input;
     }
 
     public void run() {
@@ -27,7 +26,7 @@ public class EventReceiver extends Thread{
                     MyTextEvent inputEvent = (MyTextEvent) input.readObject();
                     queue.add(inputEvent);
                 } catch (IOException e) {
-                    communicator.disconnect(this, socket);
+                    communicator.disconnect(socket);
                     return;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

@@ -6,23 +6,29 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Communicator {
 
     protected int portNumber;
     private HashMap<Socket, ServerSocket> sockets;
+    private HashMap<Socket, EventReceiver> receivers;
     private ObjectOutputStream output;
     private ObjectInputStream input;
+    private LinkedBlockingQueue eventQueue;
 
     public Communicator(int port) {
         sockets = new HashMap<Socket, ServerSocket>();
+        receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
     }
 
     public boolean connect(String serverName) {
         System.out.println("Connecting to server on " + serverName);
         try {
-            sockets.put(new Socket(serverName, portNumber), null);
+            Socket tempSocket = new Socket(serverName, portNumber);
+            sockets.put(tempSocket, null);
+            addReceiver(tempSocket);
             System.out.println("Connected to server");
             return true;
         } catch (IOException e) {
@@ -46,6 +52,7 @@ public class Communicator {
                 socket = serverSocket.accept();
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
+                addReceiver(socket);
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -101,7 +108,13 @@ public class Communicator {
         return null;
     }
 
-    public void disconnect(EventReceiver er, Socket socket) {
+    public void disconnect(Socket socket) {
+        receivers.get(socket).interrupt();
+        receivers.remove(socket);
+    }
 
+    public void addReceiver(Socket socket) {
+        receivers.put(socket, new EventReceiver(socket, eventQueue, this));
+        receivers.get(socket).start();
     }
 }
