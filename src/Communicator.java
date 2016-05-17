@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Communicator {
+public class Communicator extends Thread{
 
     protected int portNumber;
     private HashMap<Socket, ServerSocket> sockets;
@@ -38,7 +38,7 @@ public class Communicator {
         return false;
     }
 
-    public void listen() {
+    public void run() {
         Socket socket;
         ServerSocket serverSocket = null;
         try {
@@ -53,7 +53,6 @@ public class Communicator {
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
                 addReceiver(socket);
-                return;
             } catch (IOException e) {
                 e.printStackTrace();
             }

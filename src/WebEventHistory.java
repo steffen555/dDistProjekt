@@ -31,9 +31,9 @@ public class WebEventHistory extends Thread implements IEventHistory {
             }
             boolean trouble = !LogicClock.happenedBefore(latest, textEvent) && latest.getOffset() <= textEvent.getOffset();
             if (trouble && iAmTheGreatest) {
-                undo(textEvent);
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
                 justContinue = false;
+                undo(textEvent);
                 int lastBefore = textEvents.size() - 1;
                 while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
@@ -101,7 +101,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     }
 
     public void startServer() {
-        comm.listen();
+        comm.start();
     }
 
     public boolean startClient(String serverName) {

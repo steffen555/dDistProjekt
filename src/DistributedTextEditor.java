@@ -48,7 +48,7 @@ public class DistributedTextEditor extends JFrame {
         JMB.add(file);
         JMB.add(edit);
 
-        file.add(Listen);
+        //file.add(Listen);
         file.add(Connect);
         file.add(Disconnect);
         file.addSeparator();
@@ -86,6 +86,8 @@ public class DistributedTextEditor extends JFrame {
         });
 
         id = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+
+        setUp();
     }
 
     Action Listen = new AbstractAction("Listen") {
@@ -184,10 +186,19 @@ public class DistributedTextEditor extends JFrame {
     private void setUp() {
         history = new WebEventHistory(port, thisOne);
         dec = new DocumentEventCapturer(history, id, area1);
+        area1.setText("");
         enableDEC();
         EventReplayer er = new EventReplayer(dec, area1, thisOne, id);
         Thread ert = new Thread(er);
         ert.start();
+        String ip = history.printServerAddress();
+        setTitle("I'm listening on " + ip + ":" + port);
+        history.startServer();
+        changed = false;
+        connected = true;
+        Save.setEnabled(false);
+        SaveAs.setEnabled(false);
+        Disconnect.setEnabled(true);
     }
 
     private void saveFileAs() {
