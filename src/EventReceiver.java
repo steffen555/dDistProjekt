@@ -25,6 +25,7 @@ public class EventReceiver extends Thread{
                     }
                     TextEvent inputEvent = (TextEvent) input.readObject();
                     queue.add(inputEvent);
+                    communicator.sendExcept(inputEvent, socket);
                 } catch (IOException e) {
                     communicator.disconnect(socket);
                     System.out.println("Disconnected from a socket.");

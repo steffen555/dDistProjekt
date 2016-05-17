@@ -59,7 +59,7 @@ public class Communicator extends Thread {
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
                 addReceiver(socket);
-                for(TextEvent mte : events){
+                for (TextEvent mte : events) {
                     send(mte, socket);
                 }
             } catch (IOException e) {
@@ -103,7 +103,14 @@ public class Communicator extends Thread {
         }
     }
 
-    private void send(Object o, Socket socket){
+    public void sendExcept(Object o, Socket s) {
+        for (Socket socket : sockets.keySet()) {
+            if (socket != s)
+                send(o, socket);
+        }
+    }
+
+    public void send(Object o, Socket socket) {
         try {
             if (!outputs.containsKey(socket))
                 outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
