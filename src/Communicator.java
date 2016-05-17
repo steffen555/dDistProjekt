@@ -100,4 +100,8 @@ public class Communicator {
         }
         return null;
     }
+
+    public void disconnect(EventReceiver er, Socket socket) {
+
+    }
 }

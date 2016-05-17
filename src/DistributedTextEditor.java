@@ -123,7 +123,7 @@ public class DistributedTextEditor extends JFrame {
                     return;
                 }
                 if (history.startClient(ip)) {
-                    history.start();
+                    //history.start();
                     setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
                     changed = false;
                     connected = true;
@@ -146,7 +146,7 @@ public class DistributedTextEditor extends JFrame {
     public void disconnect() {
         setTitle("Disconnected");
         history.deregisterOnPort();
-        history.interrupt();
+        //history.interrupt();
         disableDEC();
         System.out.println("Godt");
         connected = false;
