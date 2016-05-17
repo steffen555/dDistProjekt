@@ -8,11 +8,12 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Communicator extends Thread{
+public class Communicator extends Thread {
 
     protected int portNumber;
     private HashMap<Socket, ServerSocket> sockets;
     private HashMap<Socket, EventReceiver> receivers;
+    private HashMap<Socket, ObjectOutputStream> outputs;
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private LinkedBlockingQueue<Object> eventQueue;
@@ -22,6 +23,7 @@ public class Communicator extends Thread{
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
         eventQueue = new LinkedBlockingQueue<Object>();
+        outputs = new HashMap<Socket, ObjectOutputStream>();
     }
 
     public boolean connect(String serverName) {
@@ -92,8 +94,9 @@ public class Communicator extends Thread{
     public void send(Object o) {
         for (Socket socket : sockets.keySet()) {
             try {
-                output = new ObjectOutputStream(socket.getOutputStream());
-                output.writeObject(o);
+                if (!outputs.containsKey(socket))
+                    outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
+                outputs.get(socket).writeObject(o);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -184,7 +184,7 @@ public class DistributedTextEditor extends JFrame {
     Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
-        history = new WebEventHistory(port, thisOne);
+        history = new WebEventHistory(port);
         dec = new DocumentEventCapturer(history, id, area1);
         area1.setText("");
         enableDEC();

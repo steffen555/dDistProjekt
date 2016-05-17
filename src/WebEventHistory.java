@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -7,13 +6,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class WebEventHistory extends Thread implements IEventHistory {
 
     protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
-    private DistributedTextEditor dte;
     private ArrayList<MyTextEvent> textEvents;
     private boolean justContinue;
     private Communicator comm;
 
-    public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
-        dte = distributedTextEditor;
+    public WebEventHistory(int port) {
         textEvents = new ArrayList<MyTextEvent>();
         justContinue = true;
         comm = new Communicator(port);
