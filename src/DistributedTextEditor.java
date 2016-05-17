@@ -119,7 +119,7 @@ public class DistributedTextEditor extends JFrame {
                 saveOld();
                 area1.setText("");
                 setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
-                setUp();
+                //setUp();
                 if(connected) {
                     history.startClient(ip);
                     return;
@@ -194,6 +194,7 @@ public class DistributedTextEditor extends JFrame {
         String ip = history.printServerAddress();
         setTitle("I'm listening on " + ip + ":" + port);
         history.startServer();
+        history.start();
         changed = false;
         connected = true;
         Save.setEnabled(false);
