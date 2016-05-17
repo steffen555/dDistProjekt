@@ -5,12 +5,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class EventReceiver extends Thread{
     private Socket socket;
-    private LinkedBlockingQueue queue;
+    private LinkedBlockingQueue<Object> queue;
     private boolean justContinue = true;
     private Communicator communicator;
     private ObjectInputStream input;
 
-    public EventReceiver(Socket socket, LinkedBlockingQueue queue, Communicator communicator) {
+    public EventReceiver(Socket socket, LinkedBlockingQueue<Object> queue, Communicator communicator) {
         this.socket = socket;
         this.queue = queue;
         this.communicator = communicator;

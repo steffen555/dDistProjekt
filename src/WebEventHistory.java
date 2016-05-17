@@ -120,14 +120,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void run() {
         while (true) {
             if (justContinue) {
-                try {
-                    eventHistory.add((MyTextEvent) comm.receiveObject());
-                } catch (IOException e) {
-                    dte.Disconnect.actionPerformed(null);
-                    return;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                eventHistory.add((MyTextEvent) comm.receiveObject());
             }
         }
     }

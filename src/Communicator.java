@@ -15,12 +15,13 @@ public class Communicator extends Thread{
     private HashMap<Socket, EventReceiver> receivers;
     private ObjectOutputStream output;
     private ObjectInputStream input;
-    private LinkedBlockingQueue eventQueue;
+    private LinkedBlockingQueue<Object> eventQueue;
 
     public Communicator(int port) {
         sockets = new HashMap<Socket, ServerSocket>();
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
+        eventQueue = new LinkedBlockingQueue<Object>();
     }
 
     public boolean connect(String serverName) {
@@ -99,12 +100,14 @@ public class Communicator extends Thread{
         }
     }
 
-    public Object receiveObject() throws IOException, ClassNotFoundException {
-        for (Socket socket : sockets.keySet()) {
-            input = new ObjectInputStream(socket.getInputStream());
-            return input.readObject();
+    public Object receiveObject() {
+        while (true) {
+            try {
+                return eventQueue.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        return null;
     }
 
     public void disconnect(Socket socket) {
