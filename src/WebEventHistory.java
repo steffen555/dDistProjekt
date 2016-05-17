@@ -1,7 +1,4 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -10,21 +7,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class WebEventHistory extends Thread implements IEventHistory {
 
     protected LinkedBlockingQueue<MyTextEvent> eventHistory = new LinkedBlockingQueue<MyTextEvent>();
-    private Socket socket;
-    private ObjectOutputStream output;
-    private ObjectInputStream input;
-    private Client client;
-    private Server server;
     private DistributedTextEditor dte;
     private ArrayList<MyTextEvent> textEvents;
     private boolean justContinue;
+    private Communicator comm;
 
     public WebEventHistory(int port, DistributedTextEditor distributedTextEditor) {
-        this.client = new Client(socket, port);
-        this.server = new Server(socket, port);
         dte = distributedTextEditor;
         textEvents = new ArrayList<MyTextEvent>();
         justContinue = true;
+        comm = new Communicator(port);
     }
 
     public boolean addTextEventToList(MyTextEvent textEvent) {
@@ -82,7 +74,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void undoLatestEvent() {
         MyTextEvent toUndo = textEvents.remove(textEvents.size() - 1);
         undo(toUndo);
-        send(toUndo.getUndoEvent());
+        comm.send(toUndo.getUndoEvent());
     }
 
     @Override
@@ -98,63 +90,35 @@ public class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public void add(MyTextEvent textEvent) {
         while (!justContinue) {
+            int i = 0;
         }
         addTextEventToList(textEvent);
         textEvent.setRedoable(true);
-        send(textEvent);
-    }
-
-    private void send(MyTextEvent mte) {
-        try {
-            if (output == null) {
-                output = new ObjectOutputStream(socket.getOutputStream());
-            }
-            output.writeObject(mte);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        comm.send(textEvent);
     }
 
     public void startServer() {
-        socket = server.run();
+        comm.listen();
     }
 
     public boolean startClient(String serverName) {
-        client.setServerName(serverName);
-        socket = client.run();
-        if (socket == null) {
-            System.out.println("Error while connecting, aborting.");
-            return false;
-        }
-        return true;
+        return comm.connect(serverName);
     }
 
     public String printServerAddress() {
-        return server.printServerAddress();
+        return comm.getServerAddress();
     }
 
     public void deregisterOnPort() {
-        server.deregisterOnPort();
-        if (socket != null) {
-            try {
-                socket.close();
-                socket = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        comm.deregister();
     }
 
     @Override
     public void run() {
         while (true) {
-            if (socket != null && justContinue) {
+            if (justContinue) {
                 try {
-                    if (input == null) {
-                        input = new ObjectInputStream(socket.getInputStream());
-                    }
-                    MyTextEvent inputEvent = (MyTextEvent) input.readObject();
-                    eventHistory.add(inputEvent);
+                    eventHistory.add((MyTextEvent) comm.receiveObject());
                 } catch (IOException e) {
                     dte.Disconnect.actionPerformed(null);
                     return;

@@ -1,0 +1,33 @@
+-- To add a new node (a) to an existing network
+node (b) in network listens
+new node connects to listening node's IP
+b tells every directly connected node a list of its connected nodes
+b tells a its view
+
+-- When a node dies
+every connected node known which nodes were connected
+every node connects directly to previously connected node with highest value (IP, id, or whatever, as long as they agree)
+    node with highest value knows that it is, and starts listening (it knows how many times)
+    everyone else connects
+
+-- To send a TextEvent
+Send to every connected node
+
+-- When receiving any Event
+if (I was the creator)
+    disconnect from sender
+else
+    send to every connected node except sender
+
+-- To update everyone's view
+Someone sends a special object containing the text for everyone to set (how to determine who?)
+When received, send to every connected node except the sender
+
+-- To add a network to another network (one will be the dominant regarding view)
+A node (a) in one network listens
+A node (b) in other network connects
+node a sends update view to node b
+
+-- When too many nodes are connected to one node (a)
+a disconnects from half of the nodes (must not be the one with highest value)
+disconnected nodes act as if a has died, and connects to the on with the highest value

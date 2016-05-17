@@ -15,7 +15,6 @@ public class DistributedTextEditor extends JFrame {
     private int port = 40501;
 
     private JTextArea area1 = new JTextArea(30, 120);
-    private JTextField ipaddress = new JTextField("IP address here");
     private JTextField portNumber = new JTextField(Integer.toString(port));
 
     private JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
@@ -141,7 +140,6 @@ public class DistributedTextEditor extends JFrame {
         setTitle("Disconnected");
         history.deregisterOnPort();
         history.interrupt();
-        //((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
         disableDEC();
         System.out.println("Godt");
         Disconnect.setEnabled(false);
