@@ -8,6 +8,7 @@ public class InfoEvent extends Event {
     public InfoEvent(int id, String ip) {
         super(id);
         this.ip = ip;
+        connections = new HashMap<Integer,String>();
     }
 
     public String getIP() {
