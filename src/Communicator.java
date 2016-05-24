@@ -22,6 +22,9 @@ class Communicator extends Thread {
     private ObjectInputStream input;
     private final LinkedBlockingQueue<Object> eventQueue;
     private final ArrayList<TextEvent> events;
+    private InfoEvent myInfoEvent;
+    private HashMap<Socket, InfoEvent> connectionsInfoEvents;
+
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -30,6 +33,8 @@ class Communicator extends Thread {
         eventQueue = new LinkedBlockingQueue<Object>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
+        myInfoEvent = new InfoEvent(DistributedTextEditor.getId(), getServerAddress());
+        connectionsInfoEvents = new HashMap<Socket, InfoEvent>();
     }
 
     boolean connect(String serverName) {
@@ -38,6 +43,7 @@ class Communicator extends Thread {
             Socket tempSocket = new Socket(serverName, portNumber);
             sockets.put(tempSocket, null);
             addReceiver(tempSocket);
+            send(myInfoEvent, tempSocket);
             System.out.println("Connected to server");
             return true;
         } catch (IOException e) {
@@ -65,6 +71,7 @@ class Communicator extends Thread {
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
                 addReceiver(socket);
+                send(myInfoEvent, socket);
                 for (TextEvent mte : events) {
                     send(mte, socket);
                 }
@@ -129,7 +136,14 @@ class Communicator extends Thread {
     Object receiveObject() {
         while (true) {
             try {
-                return eventQueue.take();
+                Object object = eventQueue.take();
+                if(object.getClass() == InfoEvent.class) {
+                    InfoEvent recievedInfoEvent = (InfoEvent) object;
+                    myInfoEvent.addConnection(recievedInfoEvent.getId(), recievedInfoEvent.getIp());
+                }
+                else {
+                    return object;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -54,12 +54,6 @@ class DistributedTextEditor extends JFrame {
         file.addSeparator();
         file.add(Save);
         file.add(SaveAs);
-        Action quit = new AbstractAction("Quit") {
-            public void actionPerformed(ActionEvent e) {
-                saveOld();
-                System.exit(0);
-            }
-        };
         file.add(quit);
 
         ActionMap m = area1.getActionMap();
@@ -184,6 +178,17 @@ class DistributedTextEditor extends JFrame {
             saveFileAs();
         }
     };
+
+    private final Action quit = new AbstractAction("Quit") {
+        public void actionPerformed(ActionEvent e) {
+            saveOld();
+            System.exit(0);
+        }
+    };
+
+    public static int getId() {
+        return id;
+    }
 
     private void setUp() {
         history = new WebEventHistory(port);
