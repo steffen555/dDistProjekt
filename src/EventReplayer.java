@@ -11,14 +11,14 @@ import java.awt.*;
  *
  * @author Jesper Buus Nielsen
  */
-public class EventReplayer implements Runnable {
+class EventReplayer implements Runnable {
 
-    private DocumentEventCapturer dec;
-    private JTextArea area;
-    private DistributedTextEditor dte;
-    private int id;
+    private final DocumentEventCapturer dec;
+    private final JTextArea area;
+    private final DistributedTextEditor dte;
+    private final int id;
 
-    public EventReplayer(DocumentEventCapturer dec, JTextArea area, DistributedTextEditor thisOne, int id) {
+    EventReplayer(DocumentEventCapturer dec, JTextArea area, DistributedTextEditor thisOne, int id) {
         this.dec = dec;
         this.area = area;
         this.dte = thisOne;
@@ -39,7 +39,7 @@ public class EventReplayer implements Runnable {
                                 try {
                                     area.insert(tie.getText(), tie.getOffset());
                                     // Sound by freesfx.co.uk
-                                    playSound("typewriter_key.wav");
+                                    playSound();
                                 } catch (Exception e) {
                                     System.err.println(e.toString());
                         /* We catch all exceptions, as an uncaught exception would make the
@@ -58,7 +58,7 @@ public class EventReplayer implements Runnable {
                                 try {
                                     area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
                                     // Sound by freesfx.co.uk
-                                    playSound("typewriter_key.wav");
+                                    playSound();
                                 } catch (Exception e) {
                                     System.err.println(e.toString());
                         /* We catch all exceptions, as an uncaught exception would make the
@@ -81,7 +81,7 @@ public class EventReplayer implements Runnable {
         dte.disconnect();
     }
 
-    public static synchronized void playSound(final String url) {
+    private static synchronized void playSound() {
         new Thread(new Runnable() {
             // The wrapper thread is unnecessary, unless it blocks on the
             // Clip finishing; see comments.
@@ -89,7 +89,7 @@ public class EventReplayer implements Runnable {
                 try {
                     Clip clip = AudioSystem.getClip();
                     AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-                            DistributedTextEditor.class.getResourceAsStream("" + url));
+                            DistributedTextEditor.class.getResourceAsStream("" + "typewriter_key.wav"));
                     clip.open(inputStream);
                     clip.start();
                 } catch (Exception e) {

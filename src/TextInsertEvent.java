@@ -1,15 +1,15 @@
 import java.util.HashMap;
 
-public class TextInsertEvent extends TextEvent {
+class TextInsertEvent extends TextEvent {
 
-    private String text;
+    private final String text;
 
-    public TextInsertEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, String text) {
+    TextInsertEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, String text) {
         super(offset, id, timeStamp);
         this.text = text;
     }
 
-    public String getText() {
+    String getText() {
         return text;
     }
 

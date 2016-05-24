@@ -1,4 +1,4 @@
-public interface IEventHistory {
+interface IEventHistory {
 
     TextEvent take() throws InterruptedException;
 

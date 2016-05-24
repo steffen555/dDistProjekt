@@ -10,14 +10,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DistributedTextEditor extends JFrame {
+class DistributedTextEditor extends JFrame {
 
-    private int port = 40501;
+    private final int port = 40501;
 
-    private JTextArea area1 = new JTextArea(30, 120);
-    private JTextField portNumber = new JTextField(Integer.toString(port));
+    private final JTextArea area1 = new JTextArea(30, 120);
+    private final JTextField portNumber = new JTextField(Integer.toString(port));
 
-    private JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
+    private final JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
 
     private String currentFile = "Untitled";
     private boolean changed = false;
@@ -25,8 +25,8 @@ public class DistributedTextEditor extends JFrame {
 
     private WebEventHistory history;
     private DocumentEventCapturer dec;
-    private DistributedTextEditor thisOne = this;
-    private int id;
+    private final DistributedTextEditor thisOne = this;
+    private static int id;
 
     public DistributedTextEditor() {
         Disconnect.setEnabled(false);
@@ -54,10 +54,19 @@ public class DistributedTextEditor extends JFrame {
         file.addSeparator();
         file.add(Save);
         file.add(SaveAs);
-        file.add(Quit);
+        Action quit = new AbstractAction("Quit") {
+            public void actionPerformed(ActionEvent e) {
+                saveOld();
+                System.exit(0);
+            }
+        };
+        file.add(quit);
 
-        edit.add(Copy);
-        edit.add(Paste);
+        ActionMap m = area1.getActionMap();
+        Action copy = m.get(DefaultEditorKit.copyAction);
+        edit.add(copy);
+        Action paste = m.get(DefaultEditorKit.pasteAction);
+        edit.add(paste);
         edit.getItem(0).setText("Copy");
         edit.getItem(1).setText("Paste");
 
@@ -90,7 +99,7 @@ public class DistributedTextEditor extends JFrame {
         setUp();
     }
 
-    Action Listen = new AbstractAction("Listen") {
+    private final Action Listen = new AbstractAction("Listen") {
         public void actionPerformed(ActionEvent e) {
             saveOld();
             area1.setText("");
@@ -111,7 +120,7 @@ public class DistributedTextEditor extends JFrame {
         }
     };
 
-    Action Connect = new AbstractAction("Connect") {
+    private final Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
             String localIp = history.printServerAddress();
             String ip;
@@ -141,26 +150,26 @@ public class DistributedTextEditor extends JFrame {
         }
     };
 
-    Action Disconnect = new AbstractAction("Disconnect") {
+    private final Action Disconnect = new AbstractAction("Disconnect") {
         public void actionPerformed(ActionEvent e) {
             disconnect();
         }
     };
 
-    public void disconnect() {
+    void disconnect() {
         String ip = history.printServerAddress();
         setTitle("I'm listening on " + ip + ":" + port);
         history.deregisterOnPort();
         //history.interrupt();
         disableDEC();
-        System.out.println("Godt");
+        System.out.println("Disconnected successfully.");
         connected = false;
         Disconnect.setEnabled(false);
         Listen.setEnabled(true);
         Connect.setEnabled(true);
     }
 
-    Action Save = new AbstractAction("Save") {
+    private final Action Save = new AbstractAction("Save") {
         public void actionPerformed(ActionEvent e) {
             if (!currentFile.equals("Untitled"))
                 saveFile(currentFile);
@@ -169,22 +178,11 @@ public class DistributedTextEditor extends JFrame {
         }
     };
 
-    Action SaveAs = new AbstractAction("Save as...") {
+    private final Action SaveAs = new AbstractAction("Save as...") {
         public void actionPerformed(ActionEvent e) {
             saveFileAs();
         }
     };
-
-    Action Quit = new AbstractAction("Quit") {
-        public void actionPerformed(ActionEvent e) {
-            saveOld();
-            System.exit(0);
-        }
-    };
-
-    ActionMap m = area1.getActionMap();
-    Action Copy = m.get(DefaultEditorKit.copyAction);
-    Action Paste = m.get(DefaultEditorKit.pasteAction);
 
     private void setUp() {
         history = new WebEventHistory(port);
@@ -229,27 +227,22 @@ public class DistributedTextEditor extends JFrame {
         }
     }
 
-    public void enableDEC() {
+    void enableDEC() {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
     }
 
-    public void disableDEC() {
+    void disableDEC() {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
     }
 
+    @SuppressWarnings("unused")
     public static void main(String[] arg) {
         //Use GTK-theme on linux-systems, so we don't get that ugly SWING-UI
         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(info.getClassName())) {
                 try {
                     UIManager.setLookAndFeel(info.getClassName());
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedLookAndFeelException e) {
+                } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
                     e.printStackTrace();
                 }
                 break;

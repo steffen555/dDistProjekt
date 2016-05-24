@@ -6,9 +6,9 @@ import java.util.HashMap;
  */
 public abstract class TextEvent implements Serializable {
 
-    private int offset;
-    private int id;
-    private HashMap<Integer,Integer> timeStamp;
+    private final int offset;
+    private final int id;
+    private final HashMap<Integer,Integer> timeStamp;
     private boolean redoable;
 
     TextEvent(int offset, int id, HashMap<Integer, Integer> timeStamp) {
@@ -32,11 +32,11 @@ public abstract class TextEvent implements Serializable {
 
     public abstract TextEvent getUndoEvent();
 
-    public void setRedoable(boolean redoable){
+    void setRedoable(boolean redoable){
         this.redoable = redoable;
     }
 
-    public boolean isRedoable(){
+    boolean isRedoable(){
         return redoable;
     }
 }

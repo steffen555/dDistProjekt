@@ -12,7 +12,7 @@ import java.util.HashMap;
  *
  * @author Jesper Buus Nielsen
  */
-public class DocumentEventCapturer extends DocumentFilter {
+class DocumentEventCapturer extends DocumentFilter {
 
     /*
      * We are using a blocking queue for two reasons: 
@@ -23,11 +23,11 @@ public class DocumentEventCapturer extends DocumentFilter {
      *    empty, then take() will wait until new elements arrive, which is what
      *    we want, as we then don't need to keep asking until there are new elements.
      */
-    protected IEventHistory eventHistory;
-    private int id;
-    private JTextArea area;
+    private final IEventHistory eventHistory;
+    private final int id;
+    private final JTextArea area;
 
-    public DocumentEventCapturer(IEventHistory eventHistoryInstance, int id, JTextArea area) {
+    DocumentEventCapturer(IEventHistory eventHistoryInstance, int id, JTextArea area) {
         eventHistory = eventHistoryInstance;
         this.id = id;
         this.area = area;

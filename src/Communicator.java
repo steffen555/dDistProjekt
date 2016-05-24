@@ -9,18 +9,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Communicator extends Thread {
+@SuppressWarnings("Convert2Diamond")
+class Communicator extends Thread {
 
-    protected int portNumber;
-    private HashMap<Socket, ServerSocket> sockets;
-    private HashMap<Socket, EventReceiver> receivers;
-    private HashMap<Socket, ObjectOutputStream> outputs;
+    private final int portNumber;
+    private final HashMap<Socket, ServerSocket> sockets;
+    private final HashMap<Socket, EventReceiver> receivers;
+    private final HashMap<Socket, ObjectOutputStream> outputs;
+    @SuppressWarnings("unused")
     private ObjectOutputStream output;
+    @SuppressWarnings("unused")
     private ObjectInputStream input;
-    private LinkedBlockingQueue<Object> eventQueue;
-    private ArrayList<TextEvent> events;
+    private final LinkedBlockingQueue<Object> eventQueue;
+    private final ArrayList<TextEvent> events;
 
-    public Communicator(int port, ArrayList<TextEvent> events) {
+    Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
@@ -29,7 +32,7 @@ public class Communicator extends Thread {
         this.events = events;
     }
 
-    public boolean connect(String serverName) {
+    boolean connect(String serverName) {
         System.out.println("Connecting to server on " + serverName);
         try {
             Socket tempSocket = new Socket(serverName, portNumber);
@@ -45,7 +48,7 @@ public class Communicator extends Thread {
     }
 
     public void run() {
-        Socket socket;
+        Socket socket = null;
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(portNumber);
@@ -53,9 +56,12 @@ public class Communicator extends Thread {
             e.printStackTrace();
         }
         System.out.println("Waiting for client");
+        //noinspection InfiniteLoopStatement
         while (true) {
             try {
-                socket = serverSocket.accept();
+                if (serverSocket != null) {
+                    socket = serverSocket.accept();
+                }
                 System.out.println("Connected to client");
                 sockets.put(socket, serverSocket);
                 addReceiver(socket);
@@ -68,7 +74,7 @@ public class Communicator extends Thread {
         }
     }
 
-    public void deregister() {
+    void deregister() {
         for (Socket socket : sockets.keySet()) {
             ServerSocket serverSocket = sockets.get(socket);
             try {
@@ -85,7 +91,7 @@ public class Communicator extends Thread {
         }
     }
 
-    public String getServerAddress() {
+    String getServerAddress() {
         try {
             InetAddress localhost = InetAddress.getLocalHost();
             return localhost.getHostAddress();
@@ -97,20 +103,20 @@ public class Communicator extends Thread {
         return "Something went wrong.";
     }
 
-    public void send(Object o) {
+    void send(Object o) {
         for (Socket socket : sockets.keySet()) {
             send(o, socket);
         }
     }
 
-    public void sendExcept(Object o, Socket s) {
+    void sendExcept(Object o, Socket s) {
         for (Socket socket : sockets.keySet()) {
             if (socket != s)
                 send(o, socket);
         }
     }
 
-    public void send(Object o, Socket socket) {
+    private void send(Object o, Socket socket) {
         try {
             if (!outputs.containsKey(socket))
                 outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
@@ -120,7 +126,7 @@ public class Communicator extends Thread {
         }
     }
 
-    public Object receiveObject() {
+    Object receiveObject() {
         while (true) {
             try {
                 return eventQueue.take();
@@ -130,12 +136,12 @@ public class Communicator extends Thread {
         }
     }
 
-    public void disconnect(Socket socket) {
+    void disconnect(Socket socket) {
         receivers.get(socket).interrupt();
         receivers.remove(socket);
     }
 
-    public void addReceiver(Socket socket) {
+    private void addReceiver(Socket socket) {
         receivers.put(socket, new EventReceiver(socket, eventQueue, this));
         receivers.get(socket).start();
     }

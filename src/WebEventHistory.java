@@ -3,20 +3,22 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class WebEventHistory extends Thread implements IEventHistory {
+@SuppressWarnings("Convert2Diamond")
+class WebEventHistory extends Thread implements IEventHistory {
 
-    protected LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
-    private ArrayList<TextEvent> textEvents;
+    private final LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
+    private final ArrayList<TextEvent> textEvents;
     private boolean justContinue;
-    private Communicator comm;
+    private final Communicator comm;
 
-    public WebEventHistory(int port) {
+    WebEventHistory(int port) {
         textEvents = new ArrayList<TextEvent>();
         justContinue = true;
         comm = new Communicator(port, textEvents);
     }
 
-    public boolean addTextEventToList(TextEvent textEvent) {
+    @SuppressWarnings("UnusedReturnValue")
+    private boolean addTextEventToList(TextEvent textEvent) {
         System.out.println("Event list size: " + textEvents.size());
         if (textEvents.size() > 0) {
             TextEvent latest = textEvents.get(textEvents.size() - 1);
@@ -26,13 +28,13 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 TextInsertEvent latestTextInsertEvent = (TextInsertEvent) latest;
                 iAmTheGreatest = textInsertEvent.getText().hashCode() < latestTextInsertEvent.getText().hashCode();
             }
-            boolean trouble = !LogicClock.happenedBefore(latest, textEvent) && latest.getOffset() <= textEvent.getOffset();
+            boolean trouble = LogicClock.notHappenedBefore(latest, textEvent) && latest.getOffset() <= textEvent.getOffset();
             if (trouble && iAmTheGreatest) {
                 System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
                 justContinue = false;
                 undo(textEvent);
                 int lastBefore = textEvents.size() - 1;
-                while (!LogicClock.happenedBefore(textEvents.get(lastBefore), textEvent))
+                while (LogicClock.notHappenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
                 System.out.println("Last event before the received: " + lastBefore + ", received events: " + textEvents.size());
                 List<TextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
@@ -68,7 +70,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
         System.out.println("Redid " + mte.toString());
     }
 
-    public void undoLatestEvent() {
+    void undoLatestEvent() {
         TextEvent toUndo = textEvents.remove(textEvents.size() - 1);
         undo(toUndo);
         comm.send(toUndo.getUndoEvent());
@@ -97,24 +99,25 @@ public class WebEventHistory extends Thread implements IEventHistory {
         comm.send(textEvent);
     }
 
-    public void startServer() {
+    void startServer() {
         comm.start();
     }
 
-    public boolean startClient(String serverName) {
+    boolean startClient(String serverName) {
         return comm.connect(serverName);
     }
 
-    public String printServerAddress() {
+    String printServerAddress() {
         return comm.getServerAddress();
     }
 
-    public void deregisterOnPort() {
+    void deregisterOnPort() {
         comm.deregister();
     }
 
     @Override
     public void run() {
+        //noinspection InfiniteLoopStatement
         while (true) {
             if (justContinue) {
                 eventHistory.add((TextEvent) comm.receiveObject());

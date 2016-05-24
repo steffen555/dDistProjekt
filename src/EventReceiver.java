@@ -3,22 +3,22 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class EventReceiver extends Thread{
-    private Socket socket;
-    private LinkedBlockingQueue<Object> queue;
-    private boolean justContinue = true;
-    private Communicator communicator;
+class EventReceiver extends Thread{
+    private final Socket socket;
+    private final LinkedBlockingQueue<Object> queue;
+    private final Communicator communicator;
     private ObjectInputStream input;
 
-    public EventReceiver(Socket socket, LinkedBlockingQueue<Object> queue, Communicator communicator) {
+    EventReceiver(Socket socket, LinkedBlockingQueue<Object> queue, Communicator communicator) {
         this.socket = socket;
         this.queue = queue;
         this.communicator = communicator;
     }
 
     public void run() {
+        //noinspection InfiniteLoopStatement
         while (true) {
-            if (socket != null && justContinue) {
+            if (socket != null) {
                 try {
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());
