@@ -3,7 +3,7 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class EventReceiver extends Thread{
+class EventReceiver extends Thread {
     private final Socket socket;
     private final LinkedBlockingQueue<Object> queue;
     private final Communicator communicator;
@@ -22,7 +22,8 @@ class EventReceiver extends Thread{
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());
                     }
-                    TextEvent inputEvent = (TextEvent) input.readObject();
+                    Event inputEvent = (Event) input.readObject();
+                    inputEvent.setReceivingSocket(socket);
                     queue.add(inputEvent);
                     communicator.sendExcept(inputEvent, socket);
                 } catch (IOException e) {

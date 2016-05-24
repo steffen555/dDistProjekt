@@ -7,9 +7,9 @@ public abstract class Event implements Serializable {
     private final HashMap<Integer, Integer> timeStamp;
     private Socket receivingSocket;
 
-    public Event(int id, HashMap<Integer, Integer> timeStamp) {
+    public Event(int id) {
         this.id = id;
-        this.timeStamp = timeStamp;
+        this.timeStamp = LogicClock.getAndIncrease(id);
     }
 
     int getID() {

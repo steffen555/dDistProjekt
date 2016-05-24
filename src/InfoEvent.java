@@ -1,18 +1,13 @@
 import java.util.HashMap;
 
-public class InfoEvent {
+public class InfoEvent extends Event {
 
-    private int id;
     private String ip;
     private HashMap<Integer,String> connections;
 
     public InfoEvent(int id, String ip) {
-        this.id = id;
+        super(id);
         this.ip = ip;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getIp() {

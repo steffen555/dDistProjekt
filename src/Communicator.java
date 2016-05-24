@@ -138,7 +138,7 @@ class Communicator extends Thread {
                 Object object = eventQueue.take();
                 if(object.getClass() == InfoEvent.class) {
                     InfoEvent recievedInfoEvent = (InfoEvent) object;
-                    myInfoEvent.addConnection(recievedInfoEvent.getId(), recievedInfoEvent.getIp());
+                    myInfoEvent.addConnection(recievedInfoEvent.getID(), recievedInfoEvent.getIp());
                 }
                 else {
                     return object;
