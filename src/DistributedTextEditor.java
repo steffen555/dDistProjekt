@@ -131,13 +131,14 @@ class DistributedTextEditor extends JFrame {
                 setTitle("Connecting to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
                 setTitle("Connected to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
                 //setUp();
+                connected = true;
                 if(connected) {
                     history.startClient(ip);
                     return;
                 }
                 if (history.startClient(ip)) {
                     //history.start();
-                    setTitle("Connected to " + ip + ":" + portNumber.getText() + "...");
+                    setTitle("Connected to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
                     changed = false;
                     connected = true;
                     Save.setEnabled(false);
