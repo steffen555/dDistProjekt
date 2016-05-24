@@ -10,7 +10,7 @@ public class InfoEvent extends Event {
         this.ip = ip;
     }
 
-    public String getIp() {
+    public String getIP() {
         return ip;
     }
 
