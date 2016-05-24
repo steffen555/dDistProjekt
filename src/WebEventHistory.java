@@ -79,7 +79,7 @@ class WebEventHistory extends Thread implements IEventHistory {
     @Override
     public TextEvent take() throws InterruptedException {
         TextEvent mte = eventHistory.take();
-        System.out.println("Received " + mte.toString() + " Time: " + mte.getTimeStamp() + ",  redoable: " + mte.isRedoable());
+        System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
         if (mte.isRedoable())
             addTextEventToList(mte);
         LogicClock.setToMax(mte.getTimeStamp());

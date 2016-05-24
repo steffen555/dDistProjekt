@@ -16,7 +16,6 @@ class EventReceiver extends Thread{
     }
 
     public void run() {
-        //noinspection InfiniteLoopStatement
         while (true) {
             if (socket != null) {
                 try {
@@ -29,6 +28,7 @@ class EventReceiver extends Thread{
                 } catch (IOException e) {
                     communicator.disconnect(socket);
                     System.out.println("Disconnected from a socket.");
+                    break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }

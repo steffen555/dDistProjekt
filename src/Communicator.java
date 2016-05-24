@@ -1,10 +1,7 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -123,6 +120,8 @@ class Communicator extends Thread {
             outputs.get(socket).writeObject(o);
         } catch (IOException e) {
             e.printStackTrace();
+            if (e.getClass() == SocketException.class)
+                forgetAbout(socket);
         }
     }
 
@@ -136,13 +135,22 @@ class Communicator extends Thread {
         }
     }
 
-    void disconnect(Socket socket) {
-        receivers.get(socket).interrupt();
+    public void disconnect(Socket socket) {
+        EventReceiver er = receivers.get(socket);
+        if (er != null)
+            er.interrupt();
         receivers.remove(socket);
     }
 
     private void addReceiver(Socket socket) {
         receivers.put(socket, new EventReceiver(socket, eventQueue, this));
         receivers.get(socket).start();
+    }
+
+    private void forgetAbout(Socket s) {
+        System.out.println("Forgetting " + s.toString());
+        sockets.remove(s);
+        receivers.remove(s);
+        outputs.remove(s);
     }
 }
