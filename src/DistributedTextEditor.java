@@ -113,12 +113,14 @@ public class DistributedTextEditor extends JFrame {
 
     Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
+            String localIp = history.printServerAddress();
             String ip;
             ip = JOptionPane.showInputDialog(thisOne, "IP address:", "localhost");
             if (ip != null) {
                 saveOld();
                 area1.setText("");
-                setTitle("Connecting to " + ip + ":" + portNumber.getText() + "...");
+                setTitle("Connecting to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
+                setTitle("Connected to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
                 //setUp();
                 if(connected) {
                     history.startClient(ip);
@@ -146,7 +148,8 @@ public class DistributedTextEditor extends JFrame {
     };
 
     public void disconnect() {
-        setTitle("Disconnected");
+        String ip = history.printServerAddress();
+        setTitle("I'm listening on " + ip + ":" + port);
         history.deregisterOnPort();
         //history.interrupt();
         disableDEC();
