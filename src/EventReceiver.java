@@ -27,6 +27,7 @@ class EventReceiver extends Thread {
                     queue.add(inputEvent);
                     communicator.sendExcept(inputEvent, socket);
                 } catch (IOException e) {
+                    e.printStackTrace();
                     communicator.disconnect(socket);
                     System.out.println("Disconnected from a socket.");
                     break;

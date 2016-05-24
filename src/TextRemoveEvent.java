@@ -6,7 +6,7 @@ class TextRemoveEvent extends TextEvent {
     private TextEvent undoEvent;
 
     TextRemoveEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, int length) {
-        super(offset, id, timeStamp);
+        super(offset, id);
         this.length = length;
     }
 

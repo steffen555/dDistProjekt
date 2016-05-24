@@ -5,7 +5,7 @@ class TextInsertEvent extends TextEvent {
     private final String text;
 
     TextInsertEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, String text) {
-        super(offset, id, timeStamp);
+        super(offset, id);
         this.text = text;
     }
 
