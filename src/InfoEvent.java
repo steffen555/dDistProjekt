@@ -3,11 +3,12 @@ import java.util.HashMap;
 public class InfoEvent extends Event {
 
     private String ip;
-    private HashMap<Integer,String> connections;
+    private HashMap<Integer, String> connections;
 
     public InfoEvent(int id, String ip) {
         super(id);
         this.ip = ip;
+        connections = new HashMap<>();
     }
 
     public String getIP() {
