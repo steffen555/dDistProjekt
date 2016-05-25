@@ -1,12 +1,10 @@
-import java.util.HashMap;
-
 class TextRemoveEvent extends TextEvent {
 
     private final int length;
     private TextEvent undoEvent;
 
-    TextRemoveEvent(int offset, int id, HashMap<Integer, Integer> timeStamp, int length) {
-        super(offset, id, timeStamp);
+    TextRemoveEvent(int offset, int id, int length) {
+        super(offset, id);
         this.length = length;
     }
 
@@ -15,7 +13,7 @@ class TextRemoveEvent extends TextEvent {
     }
 
     void createUndoEvent(String text) {
-        undoEvent = new TextInsertEvent(getOffset(), getID(), getTimeStamp(), text);
+        undoEvent = new TextInsertEvent(getOffset(), getID(), text);
     }
 
     @Override
