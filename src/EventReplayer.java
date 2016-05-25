@@ -29,48 +29,56 @@ class EventReplayer implements Runnable {
         boolean wasInterrupted = false;
         while (!wasInterrupted) {
             try {
-                TextEvent mte = dec.take();
-                if (mte.getID() != id || !mte.isRedoable()) {
-                    dte.disableDEC();
-                    if (mte instanceof TextInsertEvent) {
-                        final TextInsertEvent tie = (TextInsertEvent) mte;
-                        Runnable runnable = new Thread() {
-                            public void run() {
-                                try {
-                                    area.insert(tie.getText(), tie.getOffset());
-                                    // Sound by freesfx.co.uk
-                                    playSound();
-                                } catch (Exception e) {
-                                    System.err.println(e.toString());
+                Event e = dec.take();
+                if (TextEvent.class.isAssignableFrom(e.getClass())) {
+                    TextEvent mte = (TextEvent) e;
+                    if (mte.getID() != id || !mte.isRedoable()) {
+                        dte.disableDEC();
+                        if (mte instanceof TextInsertEvent) {
+                            final TextInsertEvent tie = (TextInsertEvent) mte;
+                            Runnable runnable = new Thread() {
+                                public void run() {
+                                    try {
+                                        area.insert(tie.getText(), tie.getOffset());
+                                        // Sound by freesfx.co.uk
+                                        playSound();
+                                    } catch (Exception e) {
+                                        System.err.println(e.toString());
                         /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
+                                    }
                                 }
-                            }
-                        };
-                        EventQueue.invokeAndWait(runnable);
-                        ((Thread) runnable).join();
-                    } else if (mte instanceof TextRemoveEvent) {
-                        ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
-                        final TextRemoveEvent tre = (TextRemoveEvent) mte;
-                        Runnable runnable = new Thread() {
-                            public void run() {
-                                try {
-                                    area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
-                                    // Sound by freesfx.co.uk
-                                    playSound();
-                                } catch (Exception e) {
-                                    System.err.println(e.toString());
+                            };
+                            EventQueue.invokeAndWait(runnable);
+                            ((Thread) runnable).join();
+                        } else if (mte instanceof TextRemoveEvent) {
+                            ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
+                            final TextRemoveEvent tre = (TextRemoveEvent) mte;
+                            Runnable runnable = new Thread() {
+                                public void run() {
+                                    try {
+                                        area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
+                                        // Sound by freesfx.co.uk
+                                        playSound();
+                                    } catch (Exception e) {
+                                        System.err.println(e.toString());
                         /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
+                                    }
                                 }
-                            }
-                        };
-                        EventQueue.invokeAndWait(runnable);
-                        ((Thread) runnable).join();
+                            };
+                            EventQueue.invokeAndWait(runnable);
+                            ((Thread) runnable).join();
+                        }
+                        dte.enableDEC();
                     }
-                    dte.enableDEC();
+                } else if (InfoEvent.class.isAssignableFrom(e.getClass())) {
+                    if (e.getClass() == ResetTextEvent.class) {
+                        WebEventHistory.flush();
+                        area.setText(((ResetTextEvent) e).getText());
+                    }
                 }
             } catch (Exception e) {
                 wasInterrupted = true;

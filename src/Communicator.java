@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
@@ -13,10 +12,6 @@ class Communicator extends Thread {
     private final HashMap<Socket, ServerSocket> sockets;
     private final HashMap<Socket, EventReceiver> receivers;
     private final HashMap<Socket, ObjectOutputStream> outputs;
-    @SuppressWarnings("unused")
-    private ObjectOutputStream output;
-    @SuppressWarnings("unused")
-    private ObjectInputStream input;
     private final LinkedBlockingQueue<Event> eventQueue;
     private final ArrayList<TextEvent> events;
 
@@ -65,7 +60,7 @@ class Communicator extends Thread {
                 for (TextEvent mte : events) {
                     send(mte, socket);
                 }
-            } catch (SocketException e){
+            } catch (SocketException e) {
                 forgetAbout(socket);
             } catch (IOException e) {
                 e.printStackTrace();

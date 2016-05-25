@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import java.awt.*;
 
 /**
  * This class captures and remembers the text events of the given document on
@@ -22,11 +23,11 @@ class DocumentEventCapturer extends DocumentFilter {
      *    empty, then take() will wait until new elements arrive, which is what
      *    we want, as we then don't need to keep asking until there are new elements.
      */
-    private final IEventHistory eventHistory;
+    private final WebEventHistory eventHistory;
     private final int id;
     private final JTextArea area;
 
-    DocumentEventCapturer(IEventHistory eventHistoryInstance, int id, JTextArea area) {
+    DocumentEventCapturer(WebEventHistory eventHistoryInstance, int id, JTextArea area) {
         eventHistory = eventHistoryInstance;
         this.id = id;
         this.area = area;
@@ -38,7 +39,7 @@ class DocumentEventCapturer extends DocumentFilter {
      *
      * @return Head of the recorded event queue.
      */
-    TextEvent take() throws InterruptedException {
+    Event take() throws InterruptedException {
         return eventHistory.take();
     }
 
@@ -49,6 +50,8 @@ class DocumentEventCapturer extends DocumentFilter {
 	/* Queue a copy of the event and then modify the textarea */
         TextInsertEvent event = new TextInsertEvent(offset, id, str);
         eventHistory.add(event);
+        if(str.equals("å"))
+            eventHistory.add(new ResetTextEvent(id, ""));
         super.insertString(fb, offset, str, a);
     }
 

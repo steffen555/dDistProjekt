@@ -1,5 +1,11 @@
 public class ResetTextEvent extends InfoEvent {
-    public ResetTextEvent(int id) {
+    private String text;
+    public ResetTextEvent(int id, String text) {
         super(id);
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;
     }
 }

@@ -4,9 +4,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @SuppressWarnings("Convert2Diamond")
-class WebEventHistory extends Thread implements IEventHistory {
+class WebEventHistory extends Thread {
 
-    private final LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
+    private static LinkedBlockingQueue<Event> eventHistory = new LinkedBlockingQueue<Event>();
     private final ArrayList<TextEvent> textEvents;
     private boolean justContinue;
     private final Communicator comm;
@@ -76,27 +76,31 @@ class WebEventHistory extends Thread implements IEventHistory {
         comm.send(toUndo.getUndoEvent());
     }
 
-    @Override
-    public TextEvent take() throws InterruptedException {
-        TextEvent mte = eventHistory.take();
-        System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
-        if (mte.isRedoable())
-            addTextEventToList(mte);
-        LogicClock.setToMax(mte.getTimeStamp());
-        return mte;
+    public Event take() throws InterruptedException {
+        Event e = eventHistory.take();
+        if(e.getClass().isAssignableFrom(TextEvent.class)) {
+            TextEvent mte = (TextEvent) e;
+            System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
+            if (mte.isRedoable())
+                addTextEventToList(mte);
+            LogicClock.setToMax(mte.getTimeStamp());
+        }
+        return e;
     }
 
-    @Override
-    public void add(TextEvent textEvent) {
-        while (!justContinue) {
-            int i = 0;
-            i++;
-            if (i < 0)
-                System.out.println("hello");
+    public void add(Event event) {
+        if(TextEvent.class.isAssignableFrom(event.getClass())) {
+            TextEvent textEvent = (TextEvent) event;
+            while (!justContinue) {
+                int i = 0;
+                i++;
+                if (i < 0)
+                    System.out.println("hello");
+            }
+            addTextEventToList(textEvent);
+            textEvent.setRedoable(true);
         }
-        addTextEventToList(textEvent);
-        textEvent.setRedoable(true);
-        comm.send(textEvent);
+        comm.send(event);
     }
 
     void startServer() {
@@ -113,6 +117,10 @@ class WebEventHistory extends Thread implements IEventHistory {
 
     void deregisterOnPort() {
         comm.deregister();
+    }
+
+    public static void flush(){
+        eventHistory = new LinkedBlockingQueue<>();
     }
 
     @Override
