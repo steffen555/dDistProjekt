@@ -25,7 +25,9 @@ class EventReceiver extends Thread {
                     Event inputEvent = (Event) input.readObject();
                     inputEvent.setReceivingSocket(socket);
                     queue.add(inputEvent);
-                    communicator.sendExcept(inputEvent, socket);
+                    if(inputEvent.getClass() != InfoEvent.class) {
+                        communicator.sendExcept(inputEvent, socket);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     communicator.disconnect(socket);
