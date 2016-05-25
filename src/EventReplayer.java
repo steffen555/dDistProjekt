@@ -60,7 +60,7 @@ class EventReplayer implements Runnable {
                                     // Sound by freesfx.co.uk
                                     playSound();
                                 } catch (Exception e) {
-                                    System.err.println(e.toString());
+                                    e.printStackTrace();
                         /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
@@ -72,6 +72,8 @@ class EventReplayer implements Runnable {
                     }
                     dte.enableDEC();
                 }
+            } catch (StringIndexOutOfBoundsException e) {
+                System.out.println("WTF, the string index is out of bounds!");
             } catch (Exception e) {
                 wasInterrupted = true;
                 e.printStackTrace();
