@@ -3,13 +3,13 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class EventReceiver extends Thread{
+class EventReceiver extends Thread {
     private final Socket socket;
-    private final LinkedBlockingQueue<Object> queue;
+    private final LinkedBlockingQueue<Event> queue;
     private final Communicator communicator;
     private ObjectInputStream input;
 
-    EventReceiver(Socket socket, LinkedBlockingQueue<Object> queue, Communicator communicator) {
+    EventReceiver(Socket socket, LinkedBlockingQueue<Event> queue, Communicator communicator) {
         this.socket = socket;
         this.queue = queue;
         this.communicator = communicator;
@@ -22,9 +22,21 @@ class EventReceiver extends Thread{
                     if (input == null) {
                         input = new ObjectInputStream(socket.getInputStream());
                     }
-                    TextEvent inputEvent = (TextEvent) input.readObject();
-                    queue.add(inputEvent);
-                    communicator.sendExcept(inputEvent, socket);
+                    Object inputObject = input.readObject();
+                    Event inputEvent;
+                    try {
+                        inputEvent = (Event) inputObject;
+                    } catch (ClassCastException e) {
+                        System.out.println("I received something I don't understand");
+                        break;
+                    }
+                    if (TextEvent.class.isAssignableFrom(inputEvent.getClass())) {
+                        queue.add(inputEvent);
+                        communicator.sendExcept(inputObject, socket);
+                    } else if(InfoEvent.class.isAssignableFrom(inputEvent.getClass())){
+                        System.out.println("Received InfoEvent");
+                        //queue.add(inputEvent);
+                    }
                 } catch (IOException e) {
                     communicator.disconnect(socket);
                     System.out.println("Disconnected from a socket.");

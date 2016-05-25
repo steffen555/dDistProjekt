@@ -17,14 +17,14 @@ class Communicator extends Thread {
     private ObjectOutputStream output;
     @SuppressWarnings("unused")
     private ObjectInputStream input;
-    private final LinkedBlockingQueue<Object> eventQueue;
+    private final LinkedBlockingQueue<Event> eventQueue;
     private final ArrayList<TextEvent> events;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
-        eventQueue = new LinkedBlockingQueue<Object>();
+        eventQueue = new LinkedBlockingQueue<Event>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
     }
