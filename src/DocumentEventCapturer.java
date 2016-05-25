@@ -2,7 +2,6 @@ import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
-import java.util.HashMap;
 
 /**
  * This class captures and remembers the text events of the given document on

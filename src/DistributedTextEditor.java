@@ -230,10 +230,12 @@ class DistributedTextEditor extends JFrame {
 
     void enableDEC() {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
+        area1.setEditable(true);
     }
 
     void disableDEC() {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
+        area1.setEditable(false);
     }
 
     @SuppressWarnings("unused")
