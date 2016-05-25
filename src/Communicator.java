@@ -65,6 +65,8 @@ class Communicator extends Thread {
                 for (TextEvent mte : events) {
                     send(mte, socket);
                 }
+            } catch (SocketException e){
+                forgetAbout(socket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
