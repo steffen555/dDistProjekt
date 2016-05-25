@@ -63,6 +63,22 @@ class EventReplayer implements Runnable {
                                         playSound();
                                     } catch (Exception e) {
                                         System.err.println(e.toString());
+                                }
+                            }
+                        };
+                        EventQueue.invokeAndWait(runnable);
+                        ((Thread) runnable).join();
+                    } else if (mte instanceof TextRemoveEvent) {
+                        ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
+                        final TextRemoveEvent tre = (TextRemoveEvent) mte;
+                        Runnable runnable = new Thread() {
+                            public void run() {
+                                try {
+                                    area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
+                                    // Sound by freesfx.co.uk
+                                    playSound();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                         /* We catch all exceptions, as an uncaught exception would make the
                          * EDT unwind, which is now healthy.
                          */
@@ -80,6 +96,8 @@ class EventReplayer implements Runnable {
                         area.setText(((ResetTextEvent) e).getText());
                     }
                 }
+            } catch (StringIndexOutOfBoundsException e) {
+                System.out.println("WTF, the string index is out of bounds!");
             } catch (Exception e) {
                 wasInterrupted = true;
                 e.printStackTrace();
