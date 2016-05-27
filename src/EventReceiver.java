@@ -35,7 +35,7 @@ class EventReceiver extends Thread {
                         communicator.sendExcept(inputObject, socket);
                     } else if(InfoEvent.class.isAssignableFrom(inputEvent.getClass())){
                         System.out.println("Received InfoEvent");
-                        queue.add(inputEvent);
+                        //queue.add(inputEvent);
                     }
                 } catch (IOException e) {
                     communicator.disconnect(socket);
