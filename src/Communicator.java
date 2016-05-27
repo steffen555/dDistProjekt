@@ -19,6 +19,7 @@ class Communicator extends Thread {
     private ObjectInputStream input;
     private final LinkedBlockingQueue<Event> eventQueue;
     private final ArrayList<TextEvent> events;
+    private ServerSocket closeableServerSocket;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -49,6 +50,7 @@ class Communicator extends Thread {
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(portNumber);
+            closeableServerSocket = serverSocket;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,14 +61,19 @@ class Communicator extends Thread {
                 if (serverSocket != null) {
                     socket = serverSocket.accept();
                 }
-                System.out.println("Connected to client");
-                sockets.put(socket, serverSocket);
-                addReceiver(socket);
-                for (TextEvent mte : events) {
-                    send(mte, socket);
+                if (socket != null) {
+                    sockets.put(socket, serverSocket);
+                    closeableServerSocket = serverSocket;
+                    System.out.println("Connected to client");
+                    addReceiver(socket);
+                    for (TextEvent mte : events) {
+                        send(mte, socket);
+                }
                 }
             } catch (SocketException e){
-                forgetAbout(socket);
+                if (socket != null) {
+                    forgetAbout(socket);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -74,12 +81,16 @@ class Communicator extends Thread {
     }
 
     void deregister() {
+        try {
+            closeableServerSocket.close();
+            System.out.println("Closed server socket.");
+        } catch (NullPointerException e) {
+            System.err.println("Serversocket already closed.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (Socket socket : sockets.keySet()) {
-            ServerSocket serverSocket = sockets.get(socket);
             try {
-                if (serverSocket != null) {
-                    serverSocket.close();
-                }
                 if (socket != null) {
                     socket.close();
                 }
@@ -132,7 +143,8 @@ class Communicator extends Thread {
             try {
                 return eventQueue.take();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                //System.err.println("Interrupted receriveObject().");
             }
         }
     }

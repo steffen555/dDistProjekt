@@ -11,7 +11,7 @@ import java.awt.*;
  *
  * @author Jesper Buus Nielsen
  */
-class EventReplayer implements Runnable {
+class EventReplayer extends Thread {
 
     private final DocumentEventCapturer dec;
     private final JTextArea area;
@@ -30,47 +30,49 @@ class EventReplayer implements Runnable {
         while (!wasInterrupted) {
             try {
                 TextEvent mte = dec.take();
-                if (mte.getID() != id || !mte.isRedoable()) {
-                    dte.disableDEC();
-                    if (mte instanceof TextInsertEvent) {
-                        final TextInsertEvent tie = (TextInsertEvent) mte;
-                        Runnable runnable = new Thread() {
-                            public void run() {
-                                try {
-                                    area.insert(tie.getText(), tie.getOffset());
-                                    // Sound by freesfx.co.uk
-                                    playSound();
-                                } catch (Exception e) {
-                                    System.err.println(e.toString());
-                        /* We catch all exceptions, as an uncaught exception would make the
-                         * EDT unwind, which is now healthy.
-                         */
+                if (mte != null) {
+                    if (mte.getID() != id || !mte.isRedoable()) {
+                        dte.disableDEC();
+                        if (mte instanceof TextInsertEvent) {
+                            final TextInsertEvent tie = (TextInsertEvent) mte;
+                            Runnable runnable = new Thread() {
+                                public void run() {
+                                    try {
+                                        area.insert(tie.getText(), tie.getOffset());
+                                        // Sound by freesfx.co.uk
+                                        playSound();
+                                    } catch (Exception e) {
+                                        System.err.println(e.toString());
+                            /* We catch all exceptions, as an uncaught exception would make the
+                             * EDT unwind, which is now healthy.
+                             */
+                                    }
                                 }
-                            }
-                        };
-                        EventQueue.invokeAndWait(runnable);
-                        ((Thread) runnable).join();
-                    } else if (mte instanceof TextRemoveEvent) {
-                        ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
-                        final TextRemoveEvent tre = (TextRemoveEvent) mte;
-                        Runnable runnable = new Thread() {
-                            public void run() {
-                                try {
-                                    area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
-                                    // Sound by freesfx.co.uk
-                                    playSound();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                        /* We catch all exceptions, as an uncaught exception would make the
-                         * EDT unwind, which is now healthy.
-                         */
+                            };
+                            EventQueue.invokeAndWait(runnable);
+                            ((Thread) runnable).join();
+                        } else if (mte instanceof TextRemoveEvent) {
+                            ((TextRemoveEvent) mte).createUndoEvent(area.getText().substring(mte.getOffset(), mte.getOffset() + ((TextRemoveEvent) mte).getLength()));
+                            final TextRemoveEvent tre = (TextRemoveEvent) mte;
+                            Runnable runnable = new Thread() {
+                                public void run() {
+                                    try {
+                                        area.replaceRange(null, tre.getOffset(), tre.getOffset() + tre.getLength());
+                                        // Sound by freesfx.co.uk
+                                        playSound();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                            /* We catch all exceptions, as an uncaught exception would make the
+                             * EDT unwind, which is now healthy.
+                             */
+                                    }
                                 }
-                            }
-                        };
-                        EventQueue.invokeAndWait(runnable);
-                        ((Thread) runnable).join();
+                            };
+                            EventQueue.invokeAndWait(runnable);
+                            ((Thread) runnable).join();
+                        }
+                        dte.enableDEC();
                     }
-                    dte.enableDEC();
                 }
             } catch (StringIndexOutOfBoundsException e) {
                 System.out.println("WTF, the string index is out of bounds!");
@@ -95,7 +97,8 @@ class EventReplayer implements Runnable {
                     clip.open(inputStream);
                     clip.start();
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.err.println("Error with playback of sound, please ignore."); //e.getMessage());
+                    //e.printStackTrace();
                 }
             }
         }).start();

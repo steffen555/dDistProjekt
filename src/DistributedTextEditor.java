@@ -27,6 +27,7 @@ class DistributedTextEditor extends JFrame {
     private DocumentEventCapturer dec;
     private final DistributedTextEditor thisOne = this;
     private static int id;
+    private EventReplayer er;
 
     public DistributedTextEditor() {
         Disconnect.setEnabled(false);
@@ -158,7 +159,7 @@ class DistributedTextEditor extends JFrame {
     };
 
     void disconnect() {
-        String ip = history.printServerAddress();
+        /*String ip = history.printServerAddress();
         setTitle("I'm listening on " + ip + ":" + port);
         history.deregisterOnPort();
         //history.interrupt();
@@ -167,7 +168,16 @@ class DistributedTextEditor extends JFrame {
         connected = false;
         Disconnect.setEnabled(false);
         Listen.setEnabled(true);
-        Connect.setEnabled(true);
+        Connect.setEnabled(true);*/
+
+        //Clean up
+        er.interrupt();
+        er = null;
+        history.deregisterOnPort();
+        history.interrupt();
+
+        //Start from new
+        setUp();
     }
 
     private final Action Save = new AbstractAction("Save") {
@@ -190,13 +200,12 @@ class DistributedTextEditor extends JFrame {
         dec = new DocumentEventCapturer(history, id, area1);
         area1.setText("");
         enableDEC();
-        EventReplayer er = new EventReplayer(dec, area1, thisOne, id);
-        Thread ert = new Thread(er);
-        ert.start();
-        String ip = history.printServerAddress();
-        setTitle("I'm listening on " + ip + ":" + port);
+        er = new EventReplayer(dec, area1, thisOne, id);
+        er.start();
         history.startServer();
         history.start();
+        String ip = history.printServerAddress();
+        setTitle("I'm listening on " + ip + ":" + port);
         changed = false;
         connected = true;
         Save.setEnabled(false);

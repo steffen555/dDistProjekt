@@ -77,13 +77,20 @@ class WebEventHistory extends Thread implements IEventHistory {
     }
 
     @Override
-    public TextEvent take() throws InterruptedException {
-        TextEvent mte = eventHistory.take();
-        System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
-        if (mte.isRedoable())
-            addTextEventToList(mte);
-        LogicClock.setToMax(mte.getTimeStamp());
-        return mte;
+    public TextEvent take() {
+        TextEvent mte = null;
+        try {
+            mte = eventHistory.take();
+            System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
+            if (mte.isRedoable())
+                addTextEventToList(mte);
+            LogicClock.setToMax(mte.getTimeStamp());
+            return mte;
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+            //System.err.println("Interrupted take().");
+        }
+        return null;
     }
 
     @Override
@@ -113,6 +120,7 @@ class WebEventHistory extends Thread implements IEventHistory {
 
     void deregisterOnPort() {
         comm.deregister();
+        comm.interrupt();
     }
 
     @Override
