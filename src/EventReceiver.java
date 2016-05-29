@@ -28,6 +28,7 @@ class EventReceiver extends Thread {
                     Event inputEvent;
                     try {
                         inputEvent = (Event) inputObject;
+                        inputEvent.setReceivingSocket(socket);
                     } catch (ClassCastException e) {
                         System.out.println("I received something I don't understand");
                         break;
