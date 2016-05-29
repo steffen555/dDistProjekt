@@ -253,6 +253,7 @@ class Communicator extends Thread {
         outputs.remove(s);
         connections.remove(s);
         label1.setText(createConnectionsString());
+        myConnections.remove(s.getInetAddress());
     }
 
     public void addConnectionChangeListener(JLabel label) {
