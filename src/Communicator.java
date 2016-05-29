@@ -158,20 +158,20 @@ class Communicator extends Thread {
         return "Something went wrong.";
     }
 
-    void send(Object o) {
+    void send(Event o) {
         for (Socket socket : sockets.keySet()) {
             send(o, socket);
         }
     }
 
-    void sendExcept(Object o, Socket s) {
+    void sendExcept(Event o, Socket s) {
         for (Socket socket : sockets.keySet()) {
             if (socket != s)
                 send(o, socket);
         }
     }
 
-    private void send(Object o, Socket socket) {
+    private void send(Event o, Socket socket) {
         try {
             if (!outputs.containsKey(socket))
                 outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
