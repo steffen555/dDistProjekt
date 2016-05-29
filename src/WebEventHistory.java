@@ -137,4 +137,8 @@ class WebEventHistory extends Thread implements IEventHistory {
     public void addConnectionChangeListener(JLabel label1) {
         comm.addConnectionChangeListener(label1);
     };
+
+    public void addDisableConnect(Action connect) {
+        comm.addDisableConnect(connect);
+    }
 }

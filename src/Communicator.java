@@ -20,6 +20,7 @@ class Communicator extends Thread {
     private JLabel label1;
     private Set<String> myConnections;
     private Set<String> familyOfLastLostConnection;
+    private Action connectbutton;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -61,6 +62,7 @@ class Communicator extends Thread {
                         System.out.println("myConnections to string: " + my.getConnections().toString());
                         sendExcept(my, conn.getReceivingSocket());
                         label1.setText(createConnectionsString());
+                        connectbutton.setEnabled(false);
                     }
                 }
             }
@@ -85,6 +87,7 @@ class Communicator extends Thread {
         }
         System.err.println("Connection failed");
         label1.setText(createConnectionsString());
+        connectbutton.setEnabled(false);
         return false;
     }
 
@@ -123,6 +126,7 @@ class Communicator extends Thread {
                         }
                     }
                     label1.setText(createConnectionsString());
+                    connectbutton.setEnabled(false);
                 }
             } catch (SocketException e) {
                 if (socket != null) {
@@ -239,6 +243,7 @@ class Communicator extends Thread {
         receivers.put(socket, new EventReceiver(socket, textEventQueue, infoEventQueue, this));
         receivers.get(socket).start();
         label1.setText(createConnectionsString());
+        connectbutton.setEnabled(false);
     }
 
     private void forgetAbout(Socket s) {
@@ -277,5 +282,10 @@ class Communicator extends Thread {
                 connect(largest);
         }
         label1.setText(createConnectionsString());
+        connectbutton.setEnabled(false);
+    }
+
+    public void addDisableConnect(Action connect) {
+        connectbutton = connect;
     }
 }

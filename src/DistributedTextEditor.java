@@ -183,6 +183,7 @@ class DistributedTextEditor extends JFrame {
         history.interrupt();
 
         //Start from new
+        Connect.setEnabled(true);
         setUp();
     }
 
@@ -219,6 +220,7 @@ class DistributedTextEditor extends JFrame {
         Disconnect.setEnabled(true);
         Connect.setEnabled(true);
         history.addConnectionChangeListener(label1);
+        history.addDisableConnect(Connect);
     }
 
     private void saveFileAs() {
