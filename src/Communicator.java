@@ -211,7 +211,7 @@ class Communicator extends Thread {
             if (!outputs.containsKey(socket))
                 outputs.put(socket, new ObjectOutputStream(socket.getOutputStream()));
             outputs.get(socket).writeObject(o);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             if (e.getClass() == SocketException.class)
                 forgetAbout(socket);
