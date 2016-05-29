@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
@@ -232,13 +231,14 @@ class Communicator extends Thread {
         return string;
     }
 
-    public void connectToNeighbour(Socket s){
+    public void connectToNeighbour(Socket s) {
         Set<String> neighs = connections.get(s);
         String largest = "";
-        for (String s1 : neighs)
-            if(s1.hashCode() > largest.hashCode())
-                largest = s1;
-        if(!largest.equals(""))
+        if (neighs.size() > 0)
+            for (String s1 : neighs)
+                if (s1.hashCode() > largest.hashCode())
+                    largest = s1;
+        if (!largest.equals(""))
             connect(largest);
     }
 }
