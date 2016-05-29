@@ -4,21 +4,19 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@SuppressWarnings("Convert2Diamond")
-class WebEventHistory extends Thread implements IEventHistory {
+public class WebEventHistory extends Thread implements IEventHistory {
 
     private final LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
     private final ArrayList<TextEvent> textEvents;
     private boolean justContinue;
     private final Communicator comm;
 
-    WebEventHistory(int port) {
+    public WebEventHistory(int port) {
         textEvents = new ArrayList<TextEvent>();
         justContinue = true;
         comm = new Communicator(port, textEvents);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     private boolean addTextEventToList(TextEvent textEvent) {
         System.out.println("Event list size: " + textEvents.size());
         if (textEvents.size() > 0) {
@@ -31,16 +29,13 @@ class WebEventHistory extends Thread implements IEventHistory {
             }
             boolean trouble = LogicClock.notHappenedBefore(latest, textEvent) && latest.getOffset() <= textEvent.getOffset();
             if (trouble && iAmTheGreatest) {
-                System.out.println("Concurrency has been detected. But don't worry! We'll fix it.");
                 justContinue = false;
                 undo(textEvent);
                 int lastBefore = textEvents.size() - 1;
                 while (LogicClock.notHappenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
-                System.out.println("Last event before the received: " + lastBefore + ", received events: " + textEvents.size());
                 List<TextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
                 CopyOnWriteArrayList<TextEvent> concurrent = new CopyOnWriteArrayList<TextEvent>(preConcurrent);
-                System.out.println("Concurrent events: " + concurrent.size());
                 for (int i = concurrent.size() - 1; i >= 0; i--) {
                     undo(concurrent.get(i));
                 }
@@ -62,16 +57,14 @@ class WebEventHistory extends Thread implements IEventHistory {
         TextEvent undoEvent = mte.getUndoEvent();
         undoEvent.setRedoable(false);
         eventHistory.add(undoEvent);
-        System.out.println("Undid " + mte.toString() + "; did " + undoEvent.toString());
     }
 
     private void redo(TextEvent mte) {
         mte.setRedoable(false);
         eventHistory.add(mte);
-        System.out.println("Redid " + mte.toString());
     }
 
-    void undoLatestEvent() {
+    public void undoLatestEvent() {
         TextEvent toUndo = textEvents.remove(textEvents.size() - 1);
         undo(toUndo);
         comm.send(toUndo.getUndoEvent());
@@ -82,7 +75,6 @@ class WebEventHistory extends Thread implements IEventHistory {
         TextEvent mte = null;
         try {
             mte = eventHistory.take();
-            System.out.println("Received " + mte.toString() + ",  redoable: " + mte.isRedoable());
             if (mte.isRedoable())
                 addTextEventToList(mte);
             LogicClock.setToMax(mte.getTimeStamp());
@@ -107,26 +99,25 @@ class WebEventHistory extends Thread implements IEventHistory {
         comm.send(textEvent);
     }
 
-    void startServer() {
+    public void startServer() {
         comm.start();
     }
 
-    boolean startClient(String serverName) {
+    public boolean startClient(String serverName) {
         return comm.connect(serverName);
     }
 
-    String printServerAddress() {
+    public String printServerAddress() {
         return comm.getServerAddress();
     }
 
-    void deregisterOnPort() {
+    public void deregisterOnPort() {
         comm.deregister();
         comm.interrupt();
     }
 
     @Override
     public void run() {
-        //noinspection InfiniteLoopStatement
         while (true) {
             if (justContinue) {
                 eventHistory.add((TextEvent) comm.receiveObject());
@@ -136,7 +127,9 @@ class WebEventHistory extends Thread implements IEventHistory {
 
     public void addConnectionChangeListener(JLabel label1) {
         comm.addConnectionChangeListener(label1);
-    };
+    }
+
+    ;
 
     public void addDisableConnect(Action connect) {
         comm.addDisableConnect(connect);

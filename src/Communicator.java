@@ -5,8 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@SuppressWarnings("Convert2Diamond")
-class Communicator extends Thread {
+public class Communicator extends Thread {
 
     private final int portNumber;
     private final HashMap<Socket, ServerSocket> sockets;
@@ -20,26 +19,27 @@ class Communicator extends Thread {
     private JLabel label1;
     private Set<String> myConnections;
     private Set<String> familyOfLastLostConnection;
-    private Action connectbutton;
+    private Action connectButton;
 
-    Communicator(int port, ArrayList<TextEvent> events) {
-        sockets = new HashMap<Socket, ServerSocket>();
-        receivers = new HashMap<Socket, EventReceiver>();
+    public Communicator(int port, ArrayList<TextEvent> events) {
+        sockets = new HashMap<>();
+        receivers = new HashMap<>();
         this.portNumber = port;
         textEventQueue = new LinkedBlockingQueue<>();
         infoEventQueue = new LinkedBlockingQueue<>();
-        outputs = new HashMap<Socket, ObjectOutputStream>();
+        outputs = new HashMap<>();
         this.events = events;
-        connections = new HashMap<Socket, Set<String>>();
-        myConnections = new HashSet<String>();
+        connections = new HashMap<>();
+        myConnections = new HashSet<>();
         startActingOnInfo();
-        familyOfLastLostConnection = new HashSet<String>();
+        familyOfLastLostConnection = new HashSet<>();
     }
 
     private void startActingOnInfo() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+                //noinspection InfiniteLoopStatement
                 while (true) {
                     InfoEvent info = null;
                     try {
@@ -47,22 +47,16 @@ class Communicator extends Thread {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (ConnectionsEvent.class.isAssignableFrom(info.getClass())) {
+                    if (info != null && ConnectionsEvent.class.isAssignableFrom(info.getClass())) {
                         ConnectionsEvent conn = (ConnectionsEvent) info;
                         conn.addConnection(getServerAddress());
                         ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
                         myConnections.add(conn.getIp());
                         my.addConnections(myConnections);
-                        System.out.println("Received NewConnectionEvent");
-                        System.out.println("recieved ID: " + conn.getIp());
-                        System.out.println("recieved connections size: " + conn.getConnections().size());
-                        System.out.println("recieved connections to string: " + conn.getConnections().toString());
-                        //Do what we do with NewConnectionEvents
                         connections.put(conn.getReceivingSocket(), conn.getConnections());
-                        System.out.println("myConnections to string: " + my.getConnections().toString());
                         sendExcept(my, conn.getReceivingSocket());
                         label1.setText(createConnectionsString());
-                        connectbutton.setEnabled(false);
+                        connectButton.setEnabled(false);
                     }
                 }
             }
@@ -70,7 +64,7 @@ class Communicator extends Thread {
         t.start();
     }
 
-    boolean connect(String serverName) {
+    public boolean connect(String serverName) {
         System.out.println("Connecting to server on " + serverName);
         try {
             Socket tempSocket = new Socket(serverName, portNumber);
@@ -87,7 +81,7 @@ class Communicator extends Thread {
         }
         System.err.println("Connection failed");
         label1.setText(createConnectionsString());
-        connectbutton.setEnabled(false);
+        connectButton.setEnabled(false);
         return false;
     }
 
@@ -117,7 +111,7 @@ class Communicator extends Thread {
                     send(my, socket);
                     boolean knownIp = false;
                     for (String s : familyOfLastLostConnection) {
-                        if (socket.getInetAddress().equals(s))
+                        if (socket.getInetAddress().toString().equals(s))
                             knownIp = true;
                     }
                     if (!knownIp) {
@@ -126,7 +120,7 @@ class Communicator extends Thread {
                         }
                     }
                     label1.setText(createConnectionsString());
-                    connectbutton.setEnabled(false);
+                    connectButton.setEnabled(false);
                 }
             } catch (SocketException e) {
                 if (socket != null) {
@@ -139,7 +133,7 @@ class Communicator extends Thread {
         }
     }
 
-    void deregister() {
+    public void deregister() {
         try {
             closeableServerSocket.close();
             System.out.println("Closed server socket.");
@@ -160,12 +154,12 @@ class Communicator extends Thread {
         label1.setText(createConnectionsString());
     }
 
-    String getServerAddress() {
+    public String getServerAddress() {
         try {
             //InetAddress localhost = InetAddress.getLocalHost();
             InetAddress localhost = getCurrentIp();
             return localhost.getHostAddress();
-        } catch (Exception e) { //UnknownHostEception
+        } catch (Exception e) {
             System.err.println("Cannot resolve the Internet address of the local host.");
             System.err.println(e.toString());
             System.exit(-1);
@@ -178,11 +172,11 @@ class Communicator extends Thread {
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
                     .getNetworkInterfaces();
             while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) networkInterfaces
+                NetworkInterface ni = networkInterfaces
                         .nextElement();
                 Enumeration<InetAddress> nias = ni.getInetAddresses();
                 while (nias.hasMoreElements()) {
-                    InetAddress ia = (InetAddress) nias.nextElement();
+                    InetAddress ia = nias.nextElement();
                     if (!ia.isLinkLocalAddress()
                             && !ia.isLoopbackAddress()
                             && ia instanceof Inet4Address) {
@@ -197,13 +191,13 @@ class Communicator extends Thread {
         return null;
     }
 
-    void send(Event o) {
+    public void send(Event o) {
         for (Socket socket : sockets.keySet()) {
             send(o, socket);
         }
     }
 
-    void sendExcept(Event o, Socket s) {
+    public void sendExcept(Event o, Socket s) {
         for (Socket socket : sockets.keySet()) {
             if (socket != s)
                 send(o, socket);
@@ -222,12 +216,12 @@ class Communicator extends Thread {
         }
     }
 
-    Object receiveObject() {
+    public Object receiveObject() {
         while (true) {
             try {
                 return textEventQueue.take();
             } catch (InterruptedException e) {
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
@@ -243,7 +237,7 @@ class Communicator extends Thread {
         receivers.put(socket, new EventReceiver(socket, textEventQueue, infoEventQueue, this));
         receivers.get(socket).start();
         label1.setText(createConnectionsString());
-        connectbutton.setEnabled(false);
+        connectButton.setEnabled(false);
     }
 
     private void forgetAbout(Socket s) {
@@ -253,7 +247,7 @@ class Communicator extends Thread {
         outputs.remove(s);
         connections.remove(s);
         label1.setText(createConnectionsString());
-        myConnections.remove(s.getInetAddress());
+        myConnections.remove(s.getInetAddress().toString());
     }
 
     public void addConnectionChangeListener(JLabel label) {
@@ -274,7 +268,7 @@ class Communicator extends Thread {
     }
 
     public void connectToNeighbour(Socket s) {
-        if(connections.get(s) != null) {
+        if (connections.get(s) != null) {
             familyOfLastLostConnection = connections.get(s);
         }
         forgetAbout(s);
@@ -285,10 +279,10 @@ class Communicator extends Thread {
                 connect(largest);
         }
         label1.setText(createConnectionsString());
-        connectbutton.setEnabled(false);
+        connectButton.setEnabled(false);
     }
 
     public void addDisableConnect(Action connect) {
-        connectbutton = connect;
+        connectButton = connect;
     }
 }

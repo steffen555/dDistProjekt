@@ -12,19 +12,19 @@ public abstract class Event implements Serializable {
         this.timeStamp = LogicClock.getAndIncrease(id);
     }
 
-    int getID() {
+    public int getID() {
         return id;
     }
 
-    HashMap<Integer, Integer> getTimeStamp() {
+    public HashMap<Integer, Integer> getTimeStamp() {
         return timeStamp;
     }
 
-    public void setReceivingSocket(Socket socket){
+    public void setReceivingSocket(Socket socket) {
         receivingSocket = socket;
     }
 
-    public Socket getReceivingSocket(){
+    public Socket getReceivingSocket() {
         return receivingSocket;
     }
 }

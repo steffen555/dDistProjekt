@@ -18,7 +18,7 @@ class EventReplayer extends Thread {
     private final DistributedTextEditor dte;
     private final int id;
 
-    EventReplayer(DocumentEventCapturer dec, JTextArea area, DistributedTextEditor thisOne, int id) {
+    public EventReplayer(DocumentEventCapturer dec, JTextArea area, DistributedTextEditor thisOne, int id) {
         this.dec = dec;
         this.area = area;
         this.dte = thisOne;
@@ -75,7 +75,7 @@ class EventReplayer extends Thread {
                     }
                 }
             } catch (StringIndexOutOfBoundsException e) {
-                System.out.println("WTF, the string index is out of bounds!");
+                System.out.println("The string index is out of bounds");
             } catch (Exception e) {
                 wasInterrupted = true;
                 e.printStackTrace();
@@ -97,8 +97,7 @@ class EventReplayer extends Thread {
                     clip.open(inputStream);
                     clip.start();
                 } catch (Exception e) {
-                    System.err.println("Error with playback of sound, please ignore."); //e.getMessage());
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
         }).start();

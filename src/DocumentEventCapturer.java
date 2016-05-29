@@ -54,7 +54,7 @@ class DocumentEventCapturer extends DocumentFilter {
 
     public void remove(FilterBypass fb, int offset, int length)
             throws BadLocationException {
-	/* Queue a copy of the event and then modify the textarea */
+    /* Queue a copy of the event and then modify the textarea */
         TextRemoveEvent event = new TextRemoveEvent(offset, id, length);
         String removedText = area.getText().substring(offset, offset + length);
         System.out.println("Text removed: " + removedText);

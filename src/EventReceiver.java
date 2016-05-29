@@ -3,14 +3,14 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class EventReceiver extends Thread {
+public class EventReceiver extends Thread {
     private final Socket socket;
     private final LinkedBlockingQueue<TextEvent> textQueue;
     private final LinkedBlockingQueue<InfoEvent> infoQueue;
     private final Communicator communicator;
     private ObjectInputStream input;
 
-    EventReceiver(Socket socket, LinkedBlockingQueue<TextEvent> textQueue, LinkedBlockingQueue<InfoEvent> infoQueue, Communicator communicator) {
+    public EventReceiver(Socket socket, LinkedBlockingQueue<TextEvent> textQueue, LinkedBlockingQueue<InfoEvent> infoQueue, Communicator communicator) {
         this.socket = socket;
         this.textQueue = textQueue;
         this.infoQueue = infoQueue;
@@ -30,14 +30,12 @@ class EventReceiver extends Thread {
                         inputEvent = (Event) inputObject;
                         inputEvent.setReceivingSocket(socket);
                     } catch (ClassCastException e) {
-                        System.out.println("I received something I don't understand");
                         break;
                     }
                     if (TextEvent.class.isAssignableFrom(inputEvent.getClass())) {
                         textQueue.add((TextEvent) inputEvent);
                         communicator.sendExcept(inputEvent, socket);
                     } else if (InfoEvent.class.isAssignableFrom(inputEvent.getClass())) {
-                        System.out.println("Received InfoEvent");
                         infoQueue.add((InfoEvent) inputEvent);
                     }
                 } catch (IOException e) {

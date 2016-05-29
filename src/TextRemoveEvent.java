@@ -1,18 +1,18 @@
-class TextRemoveEvent extends TextEvent {
+public class TextRemoveEvent extends TextEvent {
 
     private final int length;
     private TextEvent undoEvent;
 
-    TextRemoveEvent(int offset, int id, int length) {
+    public TextRemoveEvent(int offset, int id, int length) {
         super(offset, id);
         this.length = length;
     }
 
-    int getLength() {
+    public int getLength() {
         return length;
     }
 
-    void createUndoEvent(String text) {
+    public void createUndoEvent(String text) {
         undoEvent = new TextInsertEvent(getOffset(), getID(), text);
     }
 
@@ -22,7 +22,7 @@ class TextRemoveEvent extends TextEvent {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "TextRemoveEvent: remove " + getLength() + " characters at " + getOffset() + ", time: " + getTimeStamp();
     }
 }

@@ -10,13 +10,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-class DistributedTextEditor extends JFrame {
+public class DistributedTextEditor extends JFrame {
 
     private final int port = 40501;
 
     private final JTextArea area1 = new JTextArea(30, 120);
     private final JTextField portNumber = new JTextField(Integer.toString(port));
-    private JLabel label1 = new JLabel("No connections.");;
+    private JLabel label1 = new JLabel("No connections.");
 
     private final JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
 
@@ -111,7 +111,7 @@ class DistributedTextEditor extends JFrame {
             setUp();
             String ip = history.printServerAddress();
             setTitle("I'm listening on " + ip + ":" + port);
-            if(connected) {
+            if (connected) {
                 history.startServer();
                 return;
             }
@@ -137,7 +137,7 @@ class DistributedTextEditor extends JFrame {
                 setTitle("Connected to " + ip + ":" + portNumber.getText() + ". " + "I'm listening on " + localIp + ":" + port);
                 //setUp();
                 connected = true;
-                if(connected) {
+                if (connected) {
                     history.startClient(ip);
                     Connect.setEnabled(false);
                     return;
@@ -164,18 +164,7 @@ class DistributedTextEditor extends JFrame {
         }
     };
 
-    void disconnect() {
-        /*String ip = history.printServerAddress();
-        setTitle("I'm listening on " + ip + ":" + port);
-        history.deregisterOnPort();
-        //history.interrupt();
-        disableDEC();
-        System.out.println("Disconnected successfully.");
-        connected = false;
-        Disconnect.setEnabled(false);
-        Listen.setEnabled(true);
-        Connect.setEnabled(true);*/
-
+    public void disconnect() {
         //Clean up
         er.interrupt();
         er = null;
@@ -247,21 +236,20 @@ class DistributedTextEditor extends JFrame {
         }
     }
 
-    void enableDEC() {
+    public void enableDEC() {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(dec);
         area1.setEditable(true);
     }
 
-    void disableDEC() {
+    public void disableDEC() {
         area1.setEditable(false);
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
     }
 
-    static int getId() {
+    public static int getId() {
         return id;
     }
 
-    @SuppressWarnings("unused")
     public static void main(String[] arg) {
         //Use GTK-theme on linux-systems, so we don't get that ugly SWING-UI
         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
