@@ -2,10 +2,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @SuppressWarnings("Convert2Diamond")
@@ -233,12 +230,11 @@ class Communicator extends Thread {
 
     public void connectToNeighbour(Socket s) {
         Set<String> neighs = connections.get(s);
-        String largest = "";
-        if (neighs.size() > 0)
-            for (String s1 : neighs)
-                if (s1.hashCode() > largest.hashCode())
-                    largest = s1;
-        if (!largest.equals("") && !largest.equals(getServerAddress()))
-            connect(largest);
+        String largest;
+        if (neighs.size() != 0) {
+            largest = Collections.max(neighs);
+            if (!largest.equals(getServerAddress()))
+                connect(largest);
+        }
     }
 }
