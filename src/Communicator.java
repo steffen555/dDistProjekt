@@ -227,7 +227,7 @@ class Communicator extends Thread {
             try {
                 return textEventQueue.take();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
     }
@@ -274,7 +274,9 @@ class Communicator extends Thread {
     }
 
     public void connectToNeighbour(Socket s) {
-        familyOfLastLostConnection = connections.get(s);
+        if(connections.get(s) != null) {
+            familyOfLastLostConnection = connections.get(s);
+        }
         forgetAbout(s);
         String largest;
         if (familyOfLastLostConnection.size() != 0) {
