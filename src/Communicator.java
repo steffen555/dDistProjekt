@@ -164,6 +164,7 @@ class Communicator extends Thread {
     private void addReceiver(Socket socket) {
         receivers.put(socket, new EventReceiver(socket, eventQueue, this));
         receivers.get(socket).start();
+        label1.setText(createConnectionsString());
     }
 
     private void forgetAbout(Socket s) {
