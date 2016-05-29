@@ -238,7 +238,7 @@ class Communicator extends Thread {
             for (String s1 : neighs)
                 if (s1.hashCode() > largest.hashCode())
                     largest = s1;
-        if (!largest.equals(""))
+        if (!largest.equals("") && !largest.equals(getServerAddress()))
             connect(largest);
     }
 }
