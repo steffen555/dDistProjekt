@@ -43,6 +43,7 @@ class EventReceiver extends Thread {
                 } catch (IOException e) {
                     communicator.disconnect(socket);
                     System.out.println("Disconnected from a socket.");
+                    communicator.connectToNeighbour(socket);
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
