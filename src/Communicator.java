@@ -145,14 +145,39 @@ class Communicator extends Thread {
 
     String getServerAddress() {
         try {
-            InetAddress localhost = InetAddress.getLocalHost();
+            //InetAddress localhost = InetAddress.getLocalHost();
+            InetAddress localhost = getCurrentIp();
             return localhost.getHostAddress();
-        } catch (UnknownHostException e) {
+        } catch (Exception e) { //UnknownHostEception
             System.err.println("Cannot resolve the Internet address of the local host.");
             System.err.println(e.toString());
             System.exit(-1);
         }
         return "Something went wrong.";
+    }
+
+    public InetAddress getCurrentIp() {
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+                    .getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) networkInterfaces
+                        .nextElement();
+                Enumeration<InetAddress> nias = ni.getInetAddresses();
+                while(nias.hasMoreElements()) {
+                    InetAddress ia= (InetAddress) nias.nextElement();
+                    if (!ia.isLinkLocalAddress()
+                            && !ia.isLoopbackAddress()
+                            && ia instanceof Inet4Address) {
+                        return ia;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+            //LOG.error("unable to get current IP " + e.getMessage(), e);
+        }
+        return null;
     }
 
     void send(Event o) {
