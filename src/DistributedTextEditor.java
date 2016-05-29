@@ -16,6 +16,7 @@ class DistributedTextEditor extends JFrame {
 
     private final JTextArea area1 = new JTextArea(30, 120);
     private final JTextField portNumber = new JTextField(Integer.toString(port));
+    private JLabel label1 = new JLabel("No connections.");;
 
     private final JFileChooser dialog = new JFileChooser(System.getProperty("user.dir"));
 
@@ -36,11 +37,14 @@ class DistributedTextEditor extends JFrame {
         Container content = getContentPane();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
+        label1.setHorizontalTextPosition(JLabel.LEFT);
+
         JScrollPane scroll1 =
                 new JScrollPane(area1,
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         content.add(scroll1, BorderLayout.CENTER);
+        content.add(label1);
 
         JMenuBar JMB = new JMenuBar();
         setJMenuBar(JMB);
@@ -214,6 +218,7 @@ class DistributedTextEditor extends JFrame {
         SaveAs.setEnabled(false);
         Disconnect.setEnabled(true);
         Connect.setEnabled(true);
+        history.addConnectionChangeListener(label1);
     }
 
     private void saveFileAs() {

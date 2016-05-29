@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -132,4 +133,8 @@ class WebEventHistory extends Thread implements IEventHistory {
             }
         }
     }
+
+    public void addConnectionChangeListener(JLabel label1) {
+        comm.addConnectionChangeListener(label1);
+    };
 }

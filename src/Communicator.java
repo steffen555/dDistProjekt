@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,6 +21,7 @@ class Communicator extends Thread {
     private final LinkedBlockingQueue<Event> eventQueue;
     private final ArrayList<TextEvent> events;
     private ServerSocket closeableServerSocket;
+    private JLabel label1;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -37,11 +39,13 @@ class Communicator extends Thread {
             sockets.put(tempSocket, null);
             addReceiver(tempSocket);
             System.out.println("Connected to server");
+            label1.setText(createConnectionsString());
             return true;
         } catch (IOException e) {
             //e.printStackTrace();
         }
         System.err.println("Connection failed");
+        label1.setText(createConnectionsString());
         return false;
     }
 
@@ -68,9 +72,9 @@ class Communicator extends Thread {
                     addReceiver(socket);
                     for (TextEvent mte : events) {
                         send(mte, socket);
+                    }
                 }
-                }
-            } catch (SocketException e){
+            } catch (SocketException e) {
                 if (socket != null) {
                     forgetAbout(socket);
                 }
@@ -154,6 +158,7 @@ class Communicator extends Thread {
         if (er != null)
             er.interrupt();
         receivers.remove(socket);
+        label1.setText(createConnectionsString());
     }
 
     private void addReceiver(Socket socket) {
@@ -167,4 +172,25 @@ class Communicator extends Thread {
         receivers.remove(s);
         outputs.remove(s);
     }
+
+    public void addConnectionChangeListener(JLabel label) {
+        label1 = label;
+    }
+
+    ;
+
+    private String createConnectionsString() {
+        String string;
+        if (sockets.size() == 0) {
+            string = "No connections.";
+        } else {
+            string = "Connected to: ";
+            for (Socket socket : sockets.keySet()) {
+                string = string + socket.getInetAddress() + ":" + socket.getPort() + ", ";
+            }
+        }
+        return string;
+    }
+
+    ;
 }
