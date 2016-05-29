@@ -255,6 +255,10 @@ class DistributedTextEditor extends JFrame {
         ((AbstractDocument) area1.getDocument()).setDocumentFilter(null);
     }
 
+    static int getId() {
+        return id;
+    }
+
     @SuppressWarnings("unused")
     public static void main(String[] arg) {
         //Use GTK-theme on linux-systems, so we don't get that ugly SWING-UI
