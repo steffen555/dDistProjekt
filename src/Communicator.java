@@ -148,7 +148,7 @@ class Communicator extends Thread {
                 if (socket != null) {
                     socket.close();
                 }
-                sockets.remove(socket);
+                forgetAbout(socket);
                 label1.setText(createConnectionsString());
             } catch (IOException e) {
                 System.err.println(e.toString());
@@ -232,7 +232,6 @@ class Communicator extends Thread {
         EventReceiver er = receivers.get(socket);
         if (er != null)
             er.interrupt();
-        receivers.remove(socket);
         label1.setText(createConnectionsString());
     }
 
@@ -247,6 +246,7 @@ class Communicator extends Thread {
         sockets.remove(s);
         receivers.remove(s);
         outputs.remove(s);
+        connections.remove(s);
         label1.setText(createConnectionsString());
     }
 
@@ -269,7 +269,7 @@ class Communicator extends Thread {
 
     public void connectToNeighbour(Socket s) {
         familyOfLastLostConnection = connections.get(s);
-        connections.remove(s);
+        forgetAbout(s);
         String largest;
         if (familyOfLastLostConnection.size() != 0) {
             largest = Collections.max(familyOfLastLostConnection);
