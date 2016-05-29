@@ -48,6 +48,7 @@ class Communicator extends Thread {
                     }
                     if (ConnectionsEvent.class.isAssignableFrom(info.getClass())) {
                         ConnectionsEvent conn = (ConnectionsEvent) info;
+                        conn.addConnection(getServerAddress());
                         ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
                         myConnections.add(conn.getIp());
                         my.addConnections(myConnections);
@@ -57,7 +58,7 @@ class Communicator extends Thread {
                         System.out.println("recieved connections to string: " + conn.getConnections().toString());
                         //Do what we do with NewConnectionEvents
                         connections.put(conn.getReceivingSocket(), conn.getConnections());
-                        System.out.println("myConnectionEvent to string: " + my.getConnections().toString());
+                        System.out.println("myConnections to string: " + my.getConnections().toString());
                         sendExcept(my, conn.getReceivingSocket());
                     }
                 }
