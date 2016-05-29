@@ -14,6 +14,7 @@ class Communicator extends Thread {
     private final HashMap<Socket, ServerSocket> sockets;
     private final HashMap<Socket, EventReceiver> receivers;
     private final HashMap<Socket, ObjectOutputStream> outputs;
+    private final HashMap<Socket, NewConnectionEvent> connections;
     @SuppressWarnings("unused")
     private ObjectOutputStream output;
     @SuppressWarnings("unused")
@@ -22,6 +23,7 @@ class Communicator extends Thread {
     private final ArrayList<TextEvent> events;
     private ServerSocket closeableServerSocket;
     private JLabel label1;
+    private NewConnectionEvent myConnectionEvent;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -30,6 +32,9 @@ class Communicator extends Thread {
         eventQueue = new LinkedBlockingQueue<Event>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
+        connections = new HashMap<Socket, NewConnectionEvent>();
+        myConnectionEvent = new NewConnectionEvent(DistributedTextEditor.getId() ,getServerAddress());
+
     }
 
     boolean connect(String serverName) {
@@ -38,6 +43,7 @@ class Communicator extends Thread {
             Socket tempSocket = new Socket(serverName, portNumber);
             sockets.put(tempSocket, null);
             addReceiver(tempSocket);
+            send(myConnectionEvent, tempSocket);
             System.out.println("Connected to server");
             label1.setText(createConnectionsString());
             return true;
@@ -70,6 +76,7 @@ class Communicator extends Thread {
                     closeableServerSocket = serverSocket;
                     System.out.println("Connected to client");
                     addReceiver(socket);
+                    send(myConnectionEvent, socket);
                     for (TextEvent mte : events) {
                         send(mte, socket);
                     }
