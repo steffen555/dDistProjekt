@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @SuppressWarnings("Convert2Diamond")
@@ -13,13 +14,13 @@ class Communicator extends Thread {
     private final HashMap<Socket, ServerSocket> sockets;
     private final HashMap<Socket, EventReceiver> receivers;
     private final HashMap<Socket, ObjectOutputStream> outputs;
-    private final HashMap<Socket, NewConnectionEvent> connections;
+    private final HashMap<Socket, Set<String>> connections;
     private final LinkedBlockingQueue<InfoEvent> infoEventQueue;
     private final LinkedBlockingQueue<TextEvent> textEventQueue;
     private final ArrayList<TextEvent> events;
     private ServerSocket closeableServerSocket;
     private JLabel label1;
-    private NewConnectionEvent myConnectionEvent;
+    private Set<String> myConnections;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -29,8 +30,7 @@ class Communicator extends Thread {
         infoEventQueue = new LinkedBlockingQueue<>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
-        connections = new HashMap<Socket, NewConnectionEvent>();
-        myConnectionEvent = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+        connections = new HashMap<Socket, Set<String>>();
         startActingOnInfo();
     }
 
@@ -47,15 +47,17 @@ class Communicator extends Thread {
                     }
                     if (NewConnectionEvent.class.isAssignableFrom(info.getClass())) {
                         NewConnectionEvent conn = (NewConnectionEvent) info;
+                        NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+                        myConnections.add(conn.getIp());
+                        my.addConnections(myConnections);
                         System.out.println("Received NewConnectionEvent");
                         System.out.println("recieved ID: " + conn.getIp());
                         System.out.println("recieved connections size: " + conn.getConnections().size());
                         System.out.println("recieved connections to string: " + conn.getConnections().toString());
                         //Do what we do with NewConnectionEvents
-                        connections.put(conn.getReceivingSocket(), conn);
-                        myConnectionEvent.addConnection(conn.getID(), conn.getIp());
-                        System.out.println("myConnectionEvent to string" + myConnectionEvent.getConnections().toString());
-                        sendExcept(myConnectionEvent, conn.getReceivingSocket());
+                        connections.put(conn.getReceivingSocket(), conn.getConnections());
+                        System.out.println("myConnectionEvent to string: " + my.getConnections().toString());
+                        sendExcept(my, conn.getReceivingSocket());
                     }
                 }
             }
@@ -69,7 +71,9 @@ class Communicator extends Thread {
             Socket tempSocket = new Socket(serverName, portNumber);
             sockets.put(tempSocket, null);
             addReceiver(tempSocket);
-            send(myConnectionEvent, tempSocket);
+            NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+            my.addConnections(myConnections);
+            send(my, tempSocket);
             System.out.println("Connected to server");
             label1.setText(createConnectionsString());
             return true;
@@ -102,7 +106,9 @@ class Communicator extends Thread {
                     closeableServerSocket = serverSocket;
                     System.out.println("Connected to client");
                     addReceiver(socket);
-                    send(myConnectionEvent, socket);
+                    NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+                    my.addConnections(myConnections);
+                    send(my, socket);
                     for (TextEvent mte : events) {
                         send(mte, socket);
                     }
