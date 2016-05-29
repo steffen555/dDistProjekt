@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -31,6 +32,7 @@ class Communicator extends Thread {
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
         connections = new HashMap<Socket, Set<String>>();
+        myConnections = new HashSet<String>();
         startActingOnInfo();
     }
 
