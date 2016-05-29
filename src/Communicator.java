@@ -19,7 +19,7 @@ class Communicator extends Thread {
     private ServerSocket closeableServerSocket;
     private JLabel label1;
     private Set<String> myConnections;
-    private Set<String> familyOflastLostConnection;
+    private Set<String> familyOfLastLostConnection;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -32,6 +32,7 @@ class Communicator extends Thread {
         connections = new HashMap<Socket, Set<String>>();
         myConnections = new HashSet<String>();
         startActingOnInfo();
+        familyOfLastLostConnection = new HashSet<String>();
     }
 
     private void startActingOnInfo() {
@@ -110,7 +111,7 @@ class Communicator extends Thread {
                     my.addConnections(myConnections);
                     send(my, socket);
                     boolean knownIp = false;
-                    for (String s : familyOflastLostConnection) {
+                    for (String s : familyOfLastLostConnection) {
                         if (socket.getInetAddress().equals(s))
                             knownIp = true;
                     }
@@ -262,11 +263,11 @@ class Communicator extends Thread {
     }
 
     public void connectToNeighbour(Socket s) {
-        familyOflastLostConnection = connections.get(s);
+        familyOfLastLostConnection = connections.get(s);
         connections.remove(s);
         String largest;
-        if (familyOflastLostConnection.size() != 0) {
-            largest = Collections.max(familyOflastLostConnection);
+        if (familyOfLastLostConnection.size() != 0) {
+            largest = Collections.max(familyOfLastLostConnection);
             if (!largest.equals(getServerAddress()))
                 connect(largest);
         }
