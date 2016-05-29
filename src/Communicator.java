@@ -48,11 +48,13 @@ class Communicator extends Thread {
                     if (NewConnectionEvent.class.isAssignableFrom(info.getClass())) {
                         NewConnectionEvent conn = (NewConnectionEvent) info;
                         System.out.println("Received NewConnectionEvent");
-                        System.out.println(conn.getIp());
+                        System.out.println("recieved ID: " + conn.getIp());
+                        System.out.println("recieved connections size: " + conn.getConnections().size());
+                        System.out.println("recieved connections to string: " + conn.getConnections().toString());
                         //Do what we do with NewConnectionEvents
                         connections.put(conn.getReceivingSocket(), conn);
                         myConnectionEvent.addConnection(conn.getID(), conn.getIp());
-                        System.out.println(myConnectionEvent.getConnections().toString());
+                        System.out.println("myConnectionEvent to string" + myConnectionEvent.getConnections().toString());
                         sendExcept(myConnectionEvent, conn.getReceivingSocket());
                     }
                 }
