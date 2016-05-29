@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
@@ -15,11 +14,8 @@ class Communicator extends Thread {
     private final HashMap<Socket, EventReceiver> receivers;
     private final HashMap<Socket, ObjectOutputStream> outputs;
     private final HashMap<Socket, NewConnectionEvent> connections;
-    @SuppressWarnings("unused")
-    private ObjectOutputStream output;
-    @SuppressWarnings("unused")
-    private ObjectInputStream input;
-    private final LinkedBlockingQueue<Event> eventQueue;
+    private final LinkedBlockingQueue<InfoEvent> infoEventQueue;
+    private final LinkedBlockingQueue<TextEvent> textEventQueue;
     private final ArrayList<TextEvent> events;
     private ServerSocket closeableServerSocket;
     private JLabel label1;
@@ -29,12 +25,32 @@ class Communicator extends Thread {
         sockets = new HashMap<Socket, ServerSocket>();
         receivers = new HashMap<Socket, EventReceiver>();
         this.portNumber = port;
-        eventQueue = new LinkedBlockingQueue<Event>();
+        textEventQueue = new LinkedBlockingQueue<>();
+        infoEventQueue = new LinkedBlockingQueue<>();
         outputs = new HashMap<Socket, ObjectOutputStream>();
         this.events = events;
         connections = new HashMap<Socket, NewConnectionEvent>();
-        myConnectionEvent = new NewConnectionEvent(DistributedTextEditor.getId() ,getServerAddress());
+        myConnectionEvent = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+        startActingOnInfo();
+    }
 
+    private void startActingOnInfo(){
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InfoEvent info = null;
+                try {
+                    info = infoEventQueue.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(NewConnectionEvent.class.isAssignableFrom(info.getClass())){
+                    //Do what we do with NewConnectionEvents
+                    System.out.println("Received NewConnectionEvent");
+                }
+            }
+        });
+        t.start();
     }
 
     boolean connect(String serverName) {
@@ -48,7 +64,7 @@ class Communicator extends Thread {
             label1.setText(createConnectionsString());
             return true;
         } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         }
         System.err.println("Connection failed");
         label1.setText(createConnectionsString());
@@ -152,10 +168,9 @@ class Communicator extends Thread {
     Object receiveObject() {
         while (true) {
             try {
-                return eventQueue.take();
+                return textEventQueue.take();
             } catch (InterruptedException e) {
-                //e.printStackTrace();
-                //System.err.println("Interrupted receriveObject().");
+                e.printStackTrace();
             }
         }
     }
@@ -169,7 +184,7 @@ class Communicator extends Thread {
     }
 
     private void addReceiver(Socket socket) {
-        receivers.put(socket, new EventReceiver(socket, eventQueue, this));
+        receivers.put(socket, new EventReceiver(socket, textEventQueue, infoEventQueue, this));
         receivers.get(socket).start();
         label1.setText(createConnectionsString());
     }

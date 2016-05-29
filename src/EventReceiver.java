@@ -5,13 +5,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 class EventReceiver extends Thread {
     private final Socket socket;
-    private final LinkedBlockingQueue<Event> queue;
+    private final LinkedBlockingQueue<TextEvent> textQueue;
+    private final LinkedBlockingQueue<InfoEvent> infoQueue;
     private final Communicator communicator;
     private ObjectInputStream input;
 
-    EventReceiver(Socket socket, LinkedBlockingQueue<Event> queue, Communicator communicator) {
+    EventReceiver(Socket socket, LinkedBlockingQueue<TextEvent> textQueue, LinkedBlockingQueue<InfoEvent> infoQueue, Communicator communicator) {
         this.socket = socket;
-        this.queue = queue;
+        this.textQueue = textQueue;
+        this.infoQueue = infoQueue;
         this.communicator = communicator;
     }
 
@@ -31,11 +33,11 @@ class EventReceiver extends Thread {
                         break;
                     }
                     if (TextEvent.class.isAssignableFrom(inputEvent.getClass())) {
-                        queue.add(inputEvent);
+                        textQueue.add((TextEvent) inputEvent);
                         communicator.sendExcept(inputObject, socket);
-                    } else if(InfoEvent.class.isAssignableFrom(inputEvent.getClass())){
+                    } else if (InfoEvent.class.isAssignableFrom(inputEvent.getClass())) {
                         System.out.println("Received InfoEvent");
-                        //queue.add(inputEvent);
+                        infoQueue.add((InfoEvent) inputEvent);
                     }
                 } catch (IOException e) {
                     communicator.disconnect(socket);
