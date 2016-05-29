@@ -135,6 +135,7 @@ class DistributedTextEditor extends JFrame {
                 connected = true;
                 if(connected) {
                     history.startClient(ip);
+                    Connect.setEnabled(false);
                     return;
                 }
                 if (history.startClient(ip)) {
@@ -145,6 +146,7 @@ class DistributedTextEditor extends JFrame {
                     Save.setEnabled(false);
                     SaveAs.setEnabled(false);
                     Disconnect.setEnabled(true);
+                    Connect.setEnabled(false);
                 } else {
                     disconnect();
                 }
@@ -211,6 +213,7 @@ class DistributedTextEditor extends JFrame {
         Save.setEnabled(false);
         SaveAs.setEnabled(false);
         Disconnect.setEnabled(true);
+        Connect.setEnabled(true);
     }
 
     private void saveFileAs() {
