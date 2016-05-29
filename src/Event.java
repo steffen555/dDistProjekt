@@ -5,7 +5,7 @@ import java.util.HashMap;
 public abstract class Event implements Serializable {
     private final int id;
     private final HashMap<Integer, Integer> timeStamp;
-    private Socket receivingSocket;
+    private transient Socket receivingSocket;
 
     public Event(int id) {
         this.id = id;
