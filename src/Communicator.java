@@ -131,6 +131,7 @@ class Communicator extends Thread {
             } catch (SocketException e) {
                 if (socket != null) {
                     forgetAbout(socket);
+                    socket = null;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -152,12 +153,11 @@ class Communicator extends Thread {
                 if (socket != null) {
                     socket.close();
                 }
-                forgetAbout(socket);
-                label1.setText(createConnectionsString());
             } catch (IOException e) {
                 System.err.println(e.toString());
             }
         }
+        label1.setText(createConnectionsString());
     }
 
     String getServerAddress() {
