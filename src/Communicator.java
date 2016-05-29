@@ -248,6 +248,9 @@ class Communicator extends Thread {
 
     private void forgetAbout(Socket s) {
         System.out.println("Forgetting " + s.toString());
+        if(connections.get(s) != null) {
+            familyOfLastLostConnection = connections.get(s);
+        }
         sockets.remove(s);
         receivers.remove(s);
         outputs.remove(s);
@@ -274,9 +277,6 @@ class Communicator extends Thread {
     }
 
     public void connectToNeighbour(Socket s) {
-        if(connections.get(s) != null) {
-            familyOfLastLostConnection = connections.get(s);
-        }
         forgetAbout(s);
         String largest;
         if (familyOfLastLostConnection.size() != 0) {
