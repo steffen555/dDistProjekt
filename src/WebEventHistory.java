@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class WebEventHistory extends Thread implements IEventHistory {
+public class WebEventHistory extends Thread {
 
-    private final LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<TextEvent>();
+    private final LinkedBlockingQueue<TextEvent> eventHistory = new LinkedBlockingQueue<>();
     private final ArrayList<TextEvent> textEvents;
     private boolean justContinue;
     private final Communicator comm;
 
     public WebEventHistory(int port) {
-        textEvents = new ArrayList<TextEvent>();
+        textEvents = new ArrayList<>();
         justContinue = true;
         comm = new Communicator(port, textEvents);
     }
@@ -35,7 +35,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
                 while (LogicClock.notHappenedBefore(textEvents.get(lastBefore), textEvent))
                     lastBefore--;
                 List<TextEvent> preConcurrent = textEvents.subList(lastBefore + 1, textEvents.size());
-                CopyOnWriteArrayList<TextEvent> concurrent = new CopyOnWriteArrayList<TextEvent>(preConcurrent);
+                CopyOnWriteArrayList<TextEvent> concurrent = new CopyOnWriteArrayList<>(preConcurrent);
                 for (int i = concurrent.size() - 1; i >= 0; i--) {
                     undo(concurrent.get(i));
                 }
@@ -70,9 +70,8 @@ public class WebEventHistory extends Thread implements IEventHistory {
         comm.send(toUndo.getUndoEvent());
     }
 
-    @Override
     public TextEvent take() {
-        TextEvent mte = null;
+        TextEvent mte;
         try {
             mte = eventHistory.take();
             if (mte.isRedoable())
@@ -86,7 +85,6 @@ public class WebEventHistory extends Thread implements IEventHistory {
         return null;
     }
 
-    @Override
     public void add(TextEvent textEvent) {
         while (!justContinue) {
             int i = 0;
@@ -118,6 +116,7 @@ public class WebEventHistory extends Thread implements IEventHistory {
 
     @Override
     public void run() {
+        //noinspection InfiniteLoopStatement
         while (true) {
             if (justContinue) {
                 eventHistory.add((TextEvent) comm.receiveObject());
@@ -128,8 +127,6 @@ public class WebEventHistory extends Thread implements IEventHistory {
     public void addConnectionChangeListener(JLabel label1) {
         comm.addConnectionChangeListener(label1);
     }
-
-    ;
 
     public void addDisableConnect(Action connect) {
         comm.addDisableConnect(connect);

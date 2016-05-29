@@ -104,27 +104,6 @@ public class DistributedTextEditor extends JFrame {
         setUp();
     }
 
-    private final Action Listen = new AbstractAction("Listen") {
-        public void actionPerformed(ActionEvent e) {
-            saveOld();
-            area1.setText("");
-            setUp();
-            String ip = history.printServerAddress();
-            setTitle("I'm listening on " + ip + ":" + port);
-            if (connected) {
-                history.startServer();
-                return;
-            }
-            history.startServer();
-            history.start();
-            changed = false;
-            connected = true;
-            Save.setEnabled(false);
-            SaveAs.setEnabled(false);
-            Disconnect.setEnabled(true);
-        }
-    };
-
     private final Action Connect = new AbstractAction("Connect") {
         public void actionPerformed(ActionEvent e) {
             String localIp = history.printServerAddress();

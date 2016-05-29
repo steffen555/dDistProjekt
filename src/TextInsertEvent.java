@@ -13,8 +13,7 @@ public class TextInsertEvent extends TextEvent {
 
     @Override
     public TextEvent getUndoEvent() {
-        TextRemoveEvent undo = new TextRemoveEvent(getOffset(), getID(), getText().length());
-        return undo;
+        return new TextRemoveEvent(getOffset(), getID(), getText().length());
     }
 
     @Override

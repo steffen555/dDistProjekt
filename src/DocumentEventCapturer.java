@@ -22,11 +22,11 @@ class DocumentEventCapturer extends DocumentFilter {
      *    empty, then take() will wait until new elements arrive, which is what
      *    we want, as we then don't need to keep asking until there are new elements.
      */
-    private final IEventHistory eventHistory;
+    private final WebEventHistory eventHistory;
     private final int id;
     private final JTextArea area;
 
-    DocumentEventCapturer(IEventHistory eventHistoryInstance, int id, JTextArea area) {
+    DocumentEventCapturer(WebEventHistory eventHistoryInstance, int id, JTextArea area) {
         eventHistory = eventHistoryInstance;
         this.id = id;
         this.area = area;
