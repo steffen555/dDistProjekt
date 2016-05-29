@@ -19,6 +19,7 @@ class Communicator extends Thread {
     private ServerSocket closeableServerSocket;
     private JLabel label1;
     private Set<String> myConnections;
+    private Set<String> familyOflastLostConnection;
 
     Communicator(int port, ArrayList<TextEvent> events) {
         sockets = new HashMap<Socket, ServerSocket>();
@@ -108,8 +109,15 @@ class Communicator extends Thread {
                     ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
                     my.addConnections(myConnections);
                     send(my, socket);
-                    for (TextEvent mte : events) {
-                        send(mte, socket);
+                    boolean knownIp = false;
+                    for (String s : familyOflastLostConnection) {
+                        if (socket.getInetAddress().equals(s))
+                            knownIp = true;
+                    }
+                    if (!knownIp) {
+                        for (TextEvent mte : events) {
+                            send(mte, socket);
+                        }
                     }
                 }
             } catch (SocketException e) {
@@ -164,8 +172,8 @@ class Communicator extends Thread {
                 NetworkInterface ni = (NetworkInterface) networkInterfaces
                         .nextElement();
                 Enumeration<InetAddress> nias = ni.getInetAddresses();
-                while(nias.hasMoreElements()) {
-                    InetAddress ia= (InetAddress) nias.nextElement();
+                while (nias.hasMoreElements()) {
+                    InetAddress ia = (InetAddress) nias.nextElement();
                     if (!ia.isLinkLocalAddress()
                             && !ia.isLoopbackAddress()
                             && ia instanceof Inet4Address) {
@@ -254,10 +262,11 @@ class Communicator extends Thread {
     }
 
     public void connectToNeighbour(Socket s) {
-        Set<String> neighs = connections.get(s);
+        familyOflastLostConnection = connections.get(s);
+        connections.remove(s);
         String largest;
-        if (neighs.size() != 0) {
-            largest = Collections.max(neighs);
+        if (familyOflastLostConnection.size() != 0) {
+            largest = Collections.max(familyOflastLostConnection);
             if (!largest.equals(getServerAddress()))
                 connect(largest);
         }
