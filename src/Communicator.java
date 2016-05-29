@@ -60,6 +60,7 @@ class Communicator extends Thread {
                         connections.put(conn.getReceivingSocket(), conn.getConnections());
                         System.out.println("myConnections to string: " + my.getConnections().toString());
                         sendExcept(my, conn.getReceivingSocket());
+                        label1.setText(createConnectionsString());
                     }
                 }
             }
@@ -121,6 +122,7 @@ class Communicator extends Thread {
                             send(mte, socket);
                         }
                     }
+                    label1.setText(createConnectionsString());
                 }
             } catch (SocketException e) {
                 if (socket != null) {
@@ -147,6 +149,7 @@ class Communicator extends Thread {
                     socket.close();
                 }
                 sockets.remove(socket);
+                label1.setText(createConnectionsString());
             } catch (IOException e) {
                 System.err.println(e.toString());
             }
@@ -244,6 +247,7 @@ class Communicator extends Thread {
         sockets.remove(s);
         receivers.remove(s);
         outputs.remove(s);
+        label1.setText(createConnectionsString());
     }
 
     public void addConnectionChangeListener(JLabel label) {
@@ -272,5 +276,6 @@ class Communicator extends Thread {
             if (!largest.equals(getServerAddress()))
                 connect(largest);
         }
+        label1.setText(createConnectionsString());
     }
 }
