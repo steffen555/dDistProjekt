@@ -34,19 +34,21 @@ class Communicator extends Thread {
         startActingOnInfo();
     }
 
-    private void startActingOnInfo(){
+    private void startActingOnInfo() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                InfoEvent info = null;
-                try {
-                    info = infoEventQueue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(NewConnectionEvent.class.isAssignableFrom(info.getClass())){
-                    //Do what we do with NewConnectionEvents
-                    System.out.println("Received NewConnectionEvent");
+                while (true) {
+                    InfoEvent info = null;
+                    try {
+                        info = infoEventQueue.take();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (NewConnectionEvent.class.isAssignableFrom(info.getClass())) {
+                        //Do what we do with NewConnectionEvents
+                        System.out.println("Received NewConnectionEvent");
+                    }
                 }
             }
         });
