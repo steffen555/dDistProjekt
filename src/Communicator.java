@@ -47,9 +47,9 @@ class Communicator extends Thread {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (NewConnectionEvent.class.isAssignableFrom(info.getClass())) {
-                        NewConnectionEvent conn = (NewConnectionEvent) info;
-                        NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+                    if (ConnectionsEvent.class.isAssignableFrom(info.getClass())) {
+                        ConnectionsEvent conn = (ConnectionsEvent) info;
+                        ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
                         myConnections.add(conn.getIp());
                         my.addConnections(myConnections);
                         System.out.println("Received NewConnectionEvent");
@@ -73,7 +73,7 @@ class Communicator extends Thread {
             Socket tempSocket = new Socket(serverName, portNumber);
             sockets.put(tempSocket, null);
             addReceiver(tempSocket);
-            NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+            ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
             my.addConnections(myConnections);
             send(my, tempSocket);
             System.out.println("Connected to server");
@@ -108,7 +108,7 @@ class Communicator extends Thread {
                     closeableServerSocket = serverSocket;
                     System.out.println("Connected to client");
                     addReceiver(socket);
-                    NewConnectionEvent my = new NewConnectionEvent(DistributedTextEditor.getId(), getServerAddress());
+                    ConnectionsEvent my = new ConnectionsEvent(DistributedTextEditor.getId(), getServerAddress());
                     my.addConnections(myConnections);
                     send(my, socket);
                     for (TextEvent mte : events) {
@@ -218,8 +218,6 @@ class Communicator extends Thread {
         label1 = label;
     }
 
-    ;
-
     private String createConnectionsString() {
         String string;
         if (sockets.size() == 0) {
@@ -232,6 +230,4 @@ class Communicator extends Thread {
         }
         return string;
     }
-
-    ;
 }

@@ -3,12 +3,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NewConnectionEvent extends InfoEvent {
+public class ConnectionsEvent extends InfoEvent {
 
     private String ip;
     private Set<String> connections;
 
-    public NewConnectionEvent(int id, String ip) {
+    public ConnectionsEvent(int id, String ip) {
         super(id);
         this.ip = ip;
         connections = new HashSet<>();
