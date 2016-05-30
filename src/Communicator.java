@@ -117,7 +117,7 @@ class Communicator extends Thread {
                     send(my, socket);
                     boolean knownIp = false;
                     for (String s : familyOfLastLostConnection) {
-                        if (socket.getInetAddress().equals(s))
+                        if (socket.getInetAddress().getHostAddress().equals(s))
                             knownIp = true;
                     }
                     if (!knownIp) {
@@ -157,6 +157,7 @@ class Communicator extends Thread {
                 System.err.println(e.toString());
             }
         }
+        connectbutton.setEnabled(true);
         label1.setText(createConnectionsString());
     }
 
@@ -256,7 +257,7 @@ class Communicator extends Thread {
         outputs.remove(s);
         connections.remove(s);
         label1.setText(createConnectionsString());
-        myConnections.remove(s.getInetAddress());
+        myConnections.remove(s.getInetAddress().getHostAddress());
     }
 
     public void addConnectionChangeListener(JLabel label) {
